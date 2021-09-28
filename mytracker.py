@@ -1,3 +1,11 @@
+"""
+Axiom: Any software that doesn't have a Linux version sucks. No exceptions.
+Theorem 1: Tracker sucks.
+
+I wrote this in an hour at 3am, so if something breaks I am NOT responsible.
+Use at your own risk.
+"""
+
 import cv2
 import math
 from sys import argv
@@ -8,6 +16,8 @@ CENTER = (287, 155)
 
 vid_name = argv[1]
 out_name = argv[2]
+if len(argv) > 3:
+    START_TIME = int(argv[3])
 
 def process_img(img):
     global time
