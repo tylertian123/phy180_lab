@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """
+python3 fit.py [filename] [angle_format=deg|rad] [time_format=sec|frames] [fps]
+
 Adapted from fitting.py posted on Quercus.
+
+The data file is named "data.txt" by default, but can be specified as an argument.
+If angle_format is "deg", the angles will be converted into radians first.
+If time_format is "frames", the time values will be divided by the fps (default 30).
 
 The file format is as follows:
 <time1> <angle1>
 <time2> <angle2>
 ...
-
-The data file is named "data.txt" by default, but can be specified as an argument:
-python3 fit.py <filename>
 
 This plots the data and best fit on one graph, and the residuals and zero line
 (for reference) on the other graph.
@@ -23,6 +26,7 @@ The standard deviations can be used as uncertainties.
 
 import functools
 import sys
+import math
 import scipy.optimize as optimize
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,7 +40,7 @@ def fit_func(t: float, a: float, tau: float, period: float, phi: float) -> float
 def fit(x_data, y_data) -> Tuple[Tuple[float, float, float, float], Tuple[float, float, float, float]]:
     # Your initial guess of (a, tau, T, phi)
     # TODO: Prompt this instead
-    init_guess = (0.6, 25, 0.75, 0)
+    init_guess = (0.6, 15, 1.0, 0)
 
     # popt: least-squares optimized values for the parameters
     # pcov: covariance matrix
@@ -54,18 +58,45 @@ def fit(x_data, y_data) -> Tuple[Tuple[float, float, float, float], Tuple[float,
     return (a, tau, period, phi), (stdev_a, stdev_tau, stdev_period, stdev_phi)
 
 if __name__ == "__main__":
-    # Load values
-    filename = sys.argv[1] if len(sys.argv) > 2 else "data.txt"
+    # Parse args
+    filename = sys.argv[1] if len(sys.argv) > 1 else "data.txt"
+    angle_format = sys.argv[2] if len(sys.argv) > 2 else "rad"
+    if angle_format not in ("rad", "deg"):
+        print("Valid angle formats are 'deg' or 'rad'", sys.stderr)
+        sys.exit(1)
+    time_format = sys.argv[3] if len(sys.argv) > 3 else "sec"
+    if time_format not in ("sec", "frames"):
+        print("Valid time formats are 'sec' or 'frames'", sys.stderr)
+        sys.exit(1)
+    try:
+        fps = int(sys.argv[4]) if len(sys.argv) > 4 else 30
+    except ValueError:
+        print("Invalid format for fps", sys.stderr)
+        sys.exit(1)
 
+    # Load data
     x_data = []
     y_data = []
+    init_time = None
     for line in open(filename, "r", encoding="utf-8"):
-        pcs = line.strip().split()
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        pcs = line.split()
         if len(pcs) < 2:
             print("Error: Invalid data format", file=sys.stderr)
             sys.exit(1)
-        x_data.append(pcs[0])
-        y_data.append(pcs[1])
+        time = float(pcs[0])
+        if time_format == "frames":
+            time /= fps
+        angle = float(pcs[1])
+        if angle_format == "deg":
+            angle = math.radians(angle)
+        if init_time is None:
+            init_time = time
+        time -= init_time
+        x_data.append(time)
+        y_data.append(angle)
     x_data = np.array(x_data)
     y_data = np.array(y_data)
 
@@ -75,7 +106,7 @@ if __name__ == "__main__":
     # Plot best fit curve
     start, stop = min(x_data), max(x_data)
     # Plot 1000 points for the best fit curve; this can be changed
-    x_vals = np.arrange(start, stop, (stop - start) / 1000)
+    x_vals = np.arange(start, stop, (stop - start) / 1000)
     y_vals = bestfit(x_vals)
 
     fig, (ax1, ax2) = plt.subplots(2, 1)
@@ -83,7 +114,7 @@ if __name__ == "__main__":
     fig.subplots_adjust(hspace=0.6)
 
     # Plot the data
-    ax1.plot(x_data, y_data, fmt=".", label="Collected Data")
+    ax1.scatter(x_data, y_data, label="Collected Data")
     #ax1.errorbar(xdata, ydata, yerr=yerror, xerr=xerror, fmt=".")
     # Plot the best fit curve on top of the data points as a line
     ax1.plot(x_vals, y_vals, label="Best Fit Curve")
@@ -94,7 +125,7 @@ if __name__ == "__main__":
     ax1.set_title("Data & Best Fit Curve")
 
     # Print the values
-    print("Quantity\tValue\t\tStdev")
+    print("Qty\tValue\t\t\tStdev")
     print(f"A\t{a}\t{stdev_a}")
     print(f"tau\t{tau}\t{stdev_tau}")
     print(f"T\t{period}\t{stdev_period}")
@@ -102,7 +133,7 @@ if __name__ == "__main__":
 
     # Plot residuals
     residuals = y_data - bestfit(x_data)
-    ax2.plot(x_data, residuals, fmt=".", label="Residuals")
+    ax2.scatter(x_data, residuals, label="Residuals")
     #ax2.errorbar(xdata, residual, yerr=yerror, xerr=xerror, fmt=".")
 
     # Plot the zero line for reference
