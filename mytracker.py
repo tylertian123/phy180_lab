@@ -1,7 +1,6 @@
 """
 Axiom: Any software that doesn't have a Linux version sucks. No exceptions.
 Theorem 1: Tracker sucks.
-
 I wrote this in an hour at 3am, so if something breaks I am NOT responsible.
 Use at your own risk.
 """
@@ -10,9 +9,9 @@ import cv2
 import math
 from sys import argv
 
-START_TIME = 140 * 1000 // 30
+START_TIME = 152 * 1000 // 30
 FRAME_TIME_INTERVAL = 100
-CENTER = (287, 155)
+CENTER = (287, 154)
 
 vid_name = argv[1]
 out_name = argv[2]

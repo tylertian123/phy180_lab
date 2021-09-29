@@ -45,7 +45,10 @@ from typing import Tuple
 
 DO_FIT = True
 # Your initial guess of (a, tau, T, phi)
-INIT_GUESS = (1.1, 20, 1.1, 0)
+INIT_GUESS = (0.7, 50, 1.8, 0)
+
+DRAW_Q_LINE = False
+Q_DIVISOR = 3
 
 # Function used to fit
 # First variable is the x-data, and the rest are the parameters we want to determine
@@ -133,6 +136,11 @@ if __name__ == "__main__":
     ax1.scatter(x_data, y_data, label="Collected Data", s=4)
     #ax1.errorbar(xdata, ydata, yerr=yerror, xerr=xerror, fmt=".")
 
+    if DRAW_Q_LINE:
+        mag = np.exp(-np.pi / Q_DIVISOR) * a
+        ax1.plot([start, stop], [mag, mag], "yellow", label=f"Q/{Q_DIVISOR}")
+        ax1.plot([start, stop], [-mag, -mag], "yellow", label=f"Q/{Q_DIVISOR}")
+
     # Label the axes; change here
     ax1.set_xlabel("Time (s)")
     ax1.set_ylabel("Angle (rad)")
@@ -146,6 +154,7 @@ if __name__ == "__main__":
         print(f"tau\t{tau}\t{stdev_tau}")
         print(f"T\t{period}\t{stdev_period}")
         print(f"phi\t{phi}\t{stdev_phi}")
+        print(f"Q\t{np.pi * tau / period}\tCalculate this yourself, I'm lazy")
 
         # Plot residuals
         residuals = y_data - bestfit(x_data)
