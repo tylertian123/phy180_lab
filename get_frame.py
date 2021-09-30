@@ -1,5 +1,9 @@
 import cv2
+from sys import argv
 
-cap = cv2.VideoCapture("test_vid.mp4")
+time = int(argv[2])
+
+cap = cv2.VideoCapture(argv[1])
+cap.set(cv2.CAP_PROP_POS_MSEC, time)
 _, img = cap.read()
-cv2.imwrite("firstframe.png", img)
+cv2.imwrite("frame.png", img)
