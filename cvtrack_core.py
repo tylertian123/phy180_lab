@@ -25,7 +25,7 @@ def process_img(img):
     largest = max(contours, key=cv2.contourArea)
     x, y = center(largest)
 
-    green_binary = cv2.inRange(hsv, (60, 102, 100), (80, 255, 255))
+    green_binary = cv2.inRange(hsv, (60, 63, 150), (80, 255, 255))
     try:
         pivot_x, pivot_y = center(green_binary)
     except ZeroDivisionError:

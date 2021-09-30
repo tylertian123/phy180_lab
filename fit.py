@@ -45,9 +45,9 @@ from typing import Tuple
 
 DO_FIT = True
 # Your initial guess of (a, tau, T, phi)
-INIT_GUESS = (0.7, 50, 1.8, 0)
+INIT_GUESS = (0.8, 50, 1.8, 0)
 
-DRAW_Q_LINE = False
+DRAW_Q_LINE = True
 Q_DIVISOR = 3
 
 # Function used to fit
@@ -71,22 +71,19 @@ def fit(x_data, y_data) -> Tuple[Tuple[float, float, float, float], Tuple[float,
 
     return (a, tau, period, phi), (stdev_a, stdev_tau, stdev_period, stdev_phi)
 
-if __name__ == "__main__":
-    # Parse args
-    filename = sys.argv[1] if len(sys.argv) > 1 else "data.txt"
-    angle_format = sys.argv[2] if len(sys.argv) > 2 else "rad"
+
+def load_data(args) -> Tuple[np.ndarray, np.ndarray]:
+    filename = args[1] if len(args) > 1 else "data.txt"
+    angle_format = args[2] if len(args) > 2 else "rad"
     if angle_format not in ("rad", "deg"):
-        print("Valid angle formats are 'deg' or 'rad'", sys.stderr)
-        sys.exit(1)
-    time_format = sys.argv[3] if len(sys.argv) > 3 else "sec"
+        raise ValueError("Valid angle formats are 'deg' or 'rad'")
+    time_format = args[3] if len(args) > 3 else "sec"
     if time_format not in ("sec", "frames"):
-        print("Valid time formats are 'sec' or 'frames'", sys.stderr)
-        sys.exit(1)
+        raise ValueError("Valid time formats are 'sec' or 'frames'")
     try:
-        fps = int(sys.argv[4]) if len(sys.argv) > 4 else 30
+        fps = int(args[4]) if len(args) > 4 else 30
     except ValueError:
-        print("Invalid format for fps", sys.stderr)
-        sys.exit(1)
+        raise ValueError("Invalid format for FPS")
 
     # Load data
     x_data = []
@@ -111,8 +108,15 @@ if __name__ == "__main__":
         time -= init_time
         x_data.append(time)
         y_data.append(angle)
-    x_data = np.array(x_data, dtype=np.float128)
-    y_data = np.array(y_data, dtype=np.float128)
+    return np.array(x_data), np.array(y_data)
+
+def main():
+    # Parse args
+    try:
+        x_data, y_data = load_data(sys.argv)
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
 
     if DO_FIT:
         (a, tau, period, phi), (stdev_a, stdev_tau, stdev_period, stdev_phi) = fit(x_data, y_data)
@@ -137,7 +141,7 @@ if __name__ == "__main__":
     #ax1.errorbar(xdata, ydata, yerr=yerror, xerr=xerror, fmt=".")
 
     if DRAW_Q_LINE:
-        mag = np.exp(-np.pi / Q_DIVISOR) * a
+        mag = np.exp(-np.pi / Q_DIVISOR) * abs(y_data[0])
         ax1.plot([start, stop], [mag, mag], "yellow", label=f"Q/{Q_DIVISOR}")
         ax1.plot([start, stop], [-mag, -mag], "yellow", label=f"Q/{Q_DIVISOR}")
 
@@ -149,12 +153,13 @@ if __name__ == "__main__":
 
     if DO_FIT:
         # Print the values
-        print("Qty\tValue\t\t\tStdev")
+        u_q = max(stdev_tau / tau, stdev_period / period)
+        print("Qty\tValue\t\t\tStdev/Uncertainty")
         print(f"A\t{a}\t{stdev_a}")
         print(f"tau\t{tau}\t{stdev_tau}")
         print(f"T\t{period}\t{stdev_period}")
         print(f"phi\t{phi}\t{stdev_phi}")
-        print(f"Q\t{np.pi * tau / period}\tCalculate this yourself, I'm lazy")
+        print(f"Q\t{np.pi * tau / period}\t{abs(np.pi * tau / period * u_q)}")
 
         # Plot residuals
         residuals = y_data - bestfit(x_data)
@@ -169,3 +174,6 @@ if __name__ == "__main__":
         ax2.set_title("Fit Residuals")
 
     plt.show()
+
+if __name__ == "__main__":
+    main()

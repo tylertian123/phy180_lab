@@ -4,6 +4,8 @@ import sys
 import cvtrack_core as track
 
 
+SKIP_FRAMES = 2
+
 def main():
     vid_name = sys.argv[1]
     out_name = sys.argv[2]
@@ -22,8 +24,15 @@ def main():
         ((x, y), (pivot_x, pivot_y)), _ = track.process_img(img)
         angle = math.atan2(x - pivot_x, y - pivot_y)
         time = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000
-        out_file.write(f"{time} {angle}\n")
-        print(time, "\t", angle, sep="")
+        # At the end of the video the time is zero for some reason
+        # This only happens for a few frame so we'll just skip them
+        if time != 0:
+            out_file.write(f"{time} {angle}\n")
+            print(time, "\t", angle, sep="")
+        else:
+            print("Skipped a frame")
+        for _ in range(SKIP_FRAMES):
+            cap.read()
 
     out_file.close()
 
