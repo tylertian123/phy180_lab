@@ -47,7 +47,7 @@ DO_FIT = True
 # Your initial guess of (a, tau, T)
 INIT_GUESS = (0.8, 50, 1.8)
 
-DRAW_Q_LINE = True
+DRAW_Q_LINE = False
 Q_DIVISOR = 3
 
 # Function used to fit

@@ -8,3 +8,5 @@
 | `fit.py` | Fit the mathematical model to real data and generate a graph and Q value. |
 | `fit_nophi.py` | Like `fit.py`, but does not have a phase shift. |
 
+LaTeX sources are located in `report/`.
+

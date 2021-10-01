@@ -47,8 +47,14 @@ DO_FIT = True
 # Your initial guess of (a, tau, T, phi)
 INIT_GUESS = (0.8, 50, 1.8, 0)
 
-DRAW_Q_LINE = True
+DRAW_Q_LINE = False
 Q_DIVISOR = 3
+
+# Time uncertainty between frames
+X_UNCERT = 1.0 / 60 / 2
+# Angle measurement uncertainty
+Y_UNCERT = math.radians(5) / 2
+DRAW_ERRS = False
 
 # Function used to fit
 # First variable is the x-data, and the rest are the parameters we want to determine
@@ -82,8 +88,8 @@ def load_data(args) -> Tuple[np.ndarray, np.ndarray]:
         raise ValueError("Valid time formats are 'sec' or 'frames'")
     try:
         fps = int(args[4]) if len(args) > 4 else 30
-    except ValueError:
-        raise ValueError("Invalid format for FPS")
+    except ValueError as e:
+        raise ValueError("Invalid format for FPS") from e
 
     # Load data
     x_data = []
@@ -133,12 +139,18 @@ def main():
     # hspace is horizontal space between the graphs
     fig.subplots_adjust(hspace=0.6)
 
+    # Plot the data
+    x_err = np.empty(len(x_data))
+    x_err.fill(X_UNCERT)
+    y_err = np.empty(len(y_data))
+    y_err.fill(Y_UNCERT)
+    if DRAW_ERRS:
+        ax1.errorbar(x_data, y_data, xerr=x_err, yerr=y_err, fmt=".", label="Collected Data")
+    else:
+        ax1.scatter(x_data, y_data, label="Collected Data", s=4)
     if DO_FIT:
         # Plot the best fit curve on top of the data points as a line
         ax1.plot(x_vals, y_vals, "r", label="Best Fit Curve")
-    # Plot the data
-    ax1.scatter(x_data, y_data, label="Collected Data", s=4)
-    #ax1.errorbar(xdata, ydata, yerr=yerror, xerr=xerror, fmt=".")
 
     if DRAW_Q_LINE:
         mag = np.exp(-np.pi / Q_DIVISOR) * abs(y_data[0])
@@ -163,8 +175,10 @@ def main():
 
         # Plot residuals
         residuals = y_data - bestfit(x_data)
-        ax2.scatter(x_data, residuals, label="Residuals", s=4)
-        #ax2.errorbar(xdata, residual, yerr=yerror, xerr=xerror, fmt=".")
+        if DRAW_ERRS:
+            ax2.errorbar(x_data, residuals, xerr=x_err, yerr=y_err, fmt=".", label="Residuals")
+        else:
+            ax2.scatter(x_data, residuals, label="Residuals", s=4)
 
         # Plot the zero line for reference
         ax2.plot([start, stop], [0, 0], "r")
@@ -172,6 +186,7 @@ def main():
         ax2.set_xlabel("Time (s)")
         ax2.set_ylabel("Fit Residual")
         ax2.set_title("Fit Residuals")
+        ax2.legend(loc="upper right")
 
     plt.show()
 

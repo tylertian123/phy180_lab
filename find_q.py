@@ -11,6 +11,14 @@ def main():
     mag = np.exp(-np.pi / Q_DIVISOR) * amp
     maxima, _ = signal.find_peaks(y_data, height=0, threshold=0)
     minima, _ = signal.find_peaks(-y_data, height=0, threshold=0)
+
+    it = iter(maxima)
+    next(it)
+    for i, j in zip(maxima, it):
+        if x_data[j] - x_data[i] < 0.5:
+            print("Error: Invalid peak detected!")
+            sys.exit(1)
+    
     for i in range(min(len(minima), len(maxima))):
         # Find first minimum or maximum with value less than or equal to mag
         max_diff = mag - abs(y_data[maxima[i]])
