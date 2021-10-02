@@ -1,0 +1,9 @@
+# All PDFs
+*.pdf
+
+# Experiment data
+/data/*
+
+# Build output from TeX
+report/report.*
+!report/report.tex
