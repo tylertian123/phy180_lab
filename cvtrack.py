@@ -1,41 +1,35 @@
 import cv2
-import math
-import sys
-import cvtrack_core as track
 
+def center(img):
+    moments = cv2.moments(img)
+    x = int(moments["m10"] / moments["m00"])
+    y = int(moments["m01"] / moments["m00"])
+    return x, y
 
-SKIP_FRAMES = 2
+def process_img(img):
+    img = cv2.resize(img, None, fx=0.35, fy=0.35)
 
-def main():
-    vid_name = sys.argv[1]
-    out_name = sys.argv[2]
-    start_time = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    cap = cv2.VideoCapture(vid_name)
-    if start_time:
-        cap.set(cv2.CAP_PROP_POS_MSEC, start_time)
-    out_file = open(out_name, "w", encoding="utf-8")
+    binary1 = cv2.inRange(hsv, (0, 153, 100), (15, 255, 255))
+    binary2 = cv2.inRange(hsv, (174, 153, 100), (180, 255, 255))
+    binary = binary1 + binary2
 
-    while True:
-        success, img = cap.read()
-        if not success:
-            print("Finished")
-            break
-        ((x, y), (pivot_x, pivot_y)), _ = track.process_img(img)
-        angle = math.atan2(x - pivot_x, y - pivot_y)
-        time = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000
-        # At the end of the video the time is zero for some reason
-        # This only happens for a few frame so we'll just skip them
-        if time != 0:
-            out_file.write(f"{time} {angle}\n")
-            print(time, "\t", angle, sep="")
-        else:
-            print("Skipped a frame")
-        for _ in range(SKIP_FRAMES):
-            cap.read()
+    # Get largest contour
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        cv2.imwrite("failure_img.png", img)
+        cv2.imwrite("failure_binary.png", binary)
+        raise ValueError("ERROR: Bob not found in image! Failure images written.")
+    largest = max(contours, key=cv2.contourArea)
+    x, y = center(largest)
 
-    out_file.close()
+    green_binary = cv2.inRange(hsv, (60, 63, 150), (80, 255, 255))
+    try:
+        pivot_x, pivot_y = center(green_binary)
+    except ZeroDivisionError as e:
+        cv2.imwrite("failure_img.png", img)
+        cv2.imwrite("failure_pivot_binary.png", green_binary)
+        raise ValueError("ERROR: Pivot not found in image! Failure images written.") from e
 
-
-if __name__ == "__main__":
-    main()
+    return ((x, y), (pivot_x, pivot_y)), (binary, green_binary)

@@ -7,3 +7,5 @@
 # Build output from TeX
 report/report.*
 !report/report.tex
+
+__pycache__/
