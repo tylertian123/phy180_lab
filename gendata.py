@@ -1,10 +1,10 @@
-from typing import TextIO
+from typing import Optional, TextIO
 import cv2
 import math
 import argparse
 import cvtrack
 
-def main(vid_name: str, out_file: TextIO, skip_frames: int, start_time: int):
+def main(vid_name: str, out_file: TextIO, skip_frames: int, start_time: int, fx: Optional[float], fy: Optional[float]):
     cap = cv2.VideoCapture(vid_name)
     if start_time:
         cap.set(cv2.CAP_PROP_POS_MSEC, start_time)
@@ -14,7 +14,7 @@ def main(vid_name: str, out_file: TextIO, skip_frames: int, start_time: int):
         if not success:
             print("Finished")
             break
-        ((x, y), (pivot_x, pivot_y)), _ = cvtrack.process_img(img)
+        ((x, y), (pivot_x, pivot_y)), _ = cvtrack.process_img(img, fx=fx, fy=fy)
         angle = math.atan2(x - pivot_x, y - pivot_y)
         time = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000
         # At the end of the video the time is zero for some reason
@@ -36,4 +36,6 @@ if __name__ == "__main__":
     parser.add_argument("out_file", type=argparse.FileType("w", encoding="utf-8"))
     parser.add_argument("start_time", type=int, default=0, nargs="?")
     parser.add_argument("--skip-frames", type=int, default=3)
+    parser.add_argument("--fx", type=float, default=None)
+    parser.add_argument("--fy", type=float, default=None)
     main(**vars(parser.parse_args()))
