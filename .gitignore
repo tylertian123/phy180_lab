@@ -5,7 +5,7 @@
 **/data/*
 
 # Build output from TeX
-**/report/report.*
-!report.tex
+**/report/*
+!*.tex
 
 __pycache__/

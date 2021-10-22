@@ -1,6 +1,7 @@
-from typing import TextIO, Tuple
+from typing import List, Optional, TextIO, Tuple
 from scipy import signal
 from matplotlib import pyplot as plt
+import tikzplotlib
 import numpy as np
 import argparse
 import itertools
@@ -47,49 +48,61 @@ def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: floa
     return np.array(peak_x), np.array(peak_y)
 
 
-def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, half_oscillations: bool) -> None:
+def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, half_oscillations: bool,
+         save_graph: Optional[TextIO], xlim: List[float], ylim: List[float], no_write: bool, n: int) -> None:
+    print(xlim)
     x_data, y_data = load_data(data_in)
+    if n is not None:
+        x_data = x_data[:n]
+        y_data = y_data[:n]
     max_x, max_y = averaged_peaks(x_data, y_data, merge_threshold)
     min_x, min_y = averaged_peaks(x_data, -y_data, merge_threshold)
     # Because it was negated when passed into averaged_peaks
     min_y = -min_y
-    if half_oscillations:
-        # Merge both
-        peak_x = []
-        peak_y = []
-        i = j = 0
-        while i < len(min_x) and j < len(max_x):
-            if min_x[i] < max_x[j]:
-                peak_x.append(min_x[i])
-                peak_y.append(min_y[i])
-                i += 1
-            else:
-                peak_x.append(max_x[j])
-                peak_y.append(max_y[j])
-                j += 1
-        for k in range(i, len(min_x)):
-            peak_x.append(min_x[k])
-            peak_y.append(min_y[k])
-        for k in range(j, len(max_x)):
-            peak_x.append(max_x[k])
-            peak_y.append(max_y[k])
-        # Ideally this would go from the most negative amplitude to the most positive but I don't care enough
-        for y, x1, x2 in zip(peak_y, peak_x, itertools.islice(peak_x, 1, None)):
-            data_out.write(f"{y} {(x2 - x1) * 2}\n")
-    else:
-        # Start from the most negative amplitude (first min) and go to the most positive
-        for y, x1, x2 in itertools.chain(
-                zip(min_y, min_x, itertools.islice(min_x, 1, None)),
-                zip(reversed(max_y), itertools.islice(reversed(max_x), 1, None), reversed(max_x))):
-            data_out.write(f"{y} {x2 - x1}\n")
+    if not no_write:
+        if half_oscillations:
+            # Merge both
+            peak_x = []
+            peak_y = []
+            i = j = 0
+            while i < len(min_x) and j < len(max_x):
+                if min_x[i] < max_x[j]:
+                    peak_x.append(min_x[i])
+                    peak_y.append(min_y[i])
+                    i += 1
+                else:
+                    peak_x.append(max_x[j])
+                    peak_y.append(max_y[j])
+                    j += 1
+            for k in range(i, len(min_x)):
+                peak_x.append(min_x[k])
+                peak_y.append(min_y[k])
+            for k in range(j, len(max_x)):
+                peak_x.append(max_x[k])
+                peak_y.append(max_y[k])
+            # Ideally this would go from the most negative amplitude to the most positive but I don't care enough
+            for y, x1, x2 in zip(peak_y, peak_x, itertools.islice(peak_x, 1, None)):
+                data_out.write(f"{y} {(x2 - x1) * 2}\n")
+        else:
+            # Start from the most negative amplitude (first min) and go to the most positive
+            for y, x1, x2 in itertools.chain(
+                    zip(min_y, min_x, itertools.islice(min_x, 1, None)),
+                    zip(reversed(max_y), itertools.islice(reversed(max_x), 1, None), reversed(max_x))):
+                data_out.write(f"{y} {x2 - x1}\n")
     if graph:
-        plt.scatter(x_data, y_data, label="Data")
-        plt.scatter(max_x, max_y, label="Maxima")
-        plt.scatter(min_x, min_y, label="Minima")
-        plt.xlabel("Time (s)")
-        plt.ylabel("Angle (rad)")
+        plt.scatter(x_data, y_data, label="Data", s=4)
+        plt.scatter(max_x, max_y, label="Maxima", s=9)
+        plt.scatter(min_x, min_y, label="Minima", s=9, c="#00d000")
+        plt.xlabel("Time $t$ (s)")
+        plt.ylabel("Angle $\\theta$ (rad)")
         plt.title("Extrema")
         plt.legend(loc="upper right")
+        if xlim is not None:
+            plt.xlim(*xlim)
+        if ylim is not None:
+            plt.ylim(*ylim)
+        if save_graph is not None:
+            tikzplotlib.save(save_graph)
         plt.show()
 
 if __name__ == "__main__":
@@ -99,4 +112,9 @@ if __name__ == "__main__":
     parser.add_argument("--merge-threshold", type=float, default=0.5)
     parser.add_argument("--graph", action="store_true")
     parser.add_argument("--half-oscillations", action="store_true")
+    parser.add_argument("--save-graph", type=str, default=None)
+    parser.add_argument("--xlim", type=float, nargs=2, default=None)
+    parser.add_argument("--ylim", type=float, nargs=2, default=None)
+    parser.add_argument("--no-write", action="store_true")
+    parser.add_argument("-n", type=int, default=None)
     main(**vars(parser.parse_args()))
