@@ -1,13 +1,28 @@
 import argparse
 import functools
 import pprint
-from typing import TextIO
+from typing import TextIO, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import optimize
 
-from process_data import load_data
+
+def load_data(file: TextIO) -> Tuple[np.ndarray, np.ndarray]:
+    # Load data
+    # Note this version does not subtract the initial time
+    x_data = []
+    y_data = []
+    for line in file:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        pcs = line.split()
+        time = float(pcs[0])
+        angle = float(pcs[1])
+        x_data.append(time)
+        y_data.append(angle)
+    return np.array(x_data), np.array(y_data)
 
 
 def fit0(theta: float, t0: float) -> float: # pylint: disable=unused-argument
