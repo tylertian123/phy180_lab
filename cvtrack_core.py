@@ -8,8 +8,6 @@ def center(img):
     return x, y
 
 def process_img(img):
-    img = cv2.resize(img, None, fx=0.35, fy=0.35)
-
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     binary1 = cv2.inRange(hsv, (0, 153, 100), (15, 255, 255))
@@ -53,7 +51,6 @@ def main():
         sys.exit(1)
 
     ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = process_img(img)
-    img = cv2.resize(img, None, fx=0.35, fy=0.35)
     cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
     cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
@@ -75,7 +72,6 @@ def main():
         if not success:
             break
         ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = process_img(img)
-        img = cv2.resize(img, None, fx=0.35, fy=0.35)
         cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
         cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
