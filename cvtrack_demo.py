@@ -4,7 +4,7 @@ import cv2
 import argparse
 import cvtrack
 
-def main(vid_name: str, start_time: int, frame_delay: Optional[int]):
+def main(vid_name: str, start_time: int, frame_delay: Optional[int], fx: Optional[int], fy: Optional[int]):
     pause = True
 
     cap = cv2.VideoCapture(vid_name)
@@ -17,8 +17,7 @@ def main(vid_name: str, start_time: int, frame_delay: Optional[int]):
     if not success:
         sys.exit(1)
 
-    ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img)
-    img = cv2.resize(img, None, fx=0.35, fy=0.35)
+    ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img, fx=fx, fy=fy)
     cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
     cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
@@ -39,8 +38,7 @@ def main(vid_name: str, start_time: int, frame_delay: Optional[int]):
         success, img = cap.read()
         if not success:
             break
-        ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img)
-        img = cv2.resize(img, None, fx=0.35, fy=0.35)
+        ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img, fx=fx, fy=fy)
         cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
         cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
@@ -59,4 +57,6 @@ if __name__ == "__main__":
     parser.add_argument("vid_name", type=str)
     parser.add_argument("start_time", type=int, default=0, nargs="?")
     parser.add_argument("--frame-delay", type=int, default=None)
+    parser.add_argument("--fx", type=float, default=None)
+    parser.add_argument("--fy", type=float, default=None)
     main(**vars(parser.parse_args()))
