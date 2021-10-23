@@ -9,3 +9,4 @@
 !*.tex
 
 __pycache__/
+.vscode/

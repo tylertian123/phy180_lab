@@ -38,6 +38,9 @@
 \usetikzlibrary{patterns,shapes.arrows}
 \pgfplotsset{compat=newest}
 
+\usetikzlibrary{external}
+\tikzexternalize
+
 \usepackage[english]{babel}
 \usepackage[autostyle, english=american]{csquotes}
 \MakeOuterQuote{"}
@@ -108,6 +111,33 @@ peak amplitude.
     \caption{Zoomed-in view of the first 500 raw data points. The orange and green points are the maxima/minima, from
              which period and amplitude are taken.}
 \end{figure}
+
+These are the sources of uncertainty resulting from this method:
+\begin{enumerate}
+    \item Time (period) uncertainty from the camera: The camera can only capture a set number of frames per second and
+          has a nonzero shutter speed. The true peak of an oscillation could lie between two data points, creating an
+          uncertainty. An upper bound for this uncertainty can be obtained by taking the time between two frames and
+          dividing by 2. At 30 data points per second, this results in an uncertainty of \(\pm 0.02\si{s}\).
+          (\textit{Note: while the video was recorded in 120fps to reduce motion blur, the actual rate of data
+          collection was only 30 data points/second.})
+    \item Period uncertainty from noise in the data and inaccuracies in peak finding: Due to noise in the data,
+          sometimes the true peak location is not apparent. The code attempts to correct this by taking the mean of all
+          peak candidates. The standard deviation of the time values of the peak candidates is used as the uncertainty,
+          and experimentally determined to be about \(\pm 0.06\si{s}\).
+    \item Amplitude uncertainty caused by the previous two uncertainties: Since the true peak may lie between two data
+          points (as per \textcircled{1}) and is influenced by noise (as per \textcircled{2}), this creates an
+          uncertainty. As the exact value of this uncertainty is hard to find, it is assumed to be the same in
+          percentage as the larger of the two sources above.
+    \item Amplitude uncertainty caused by the decay of the pendulum over one oscillation: The pendulum's amplitude
+          decays as it swings, creating an uncertainty. By substituting $t = T$ into the pendulum equation, we obtain
+          an exponential term of $e^{-\frac{T}{t}} = e^{-\frac{\pi}{Q}}$. In other words, the amplitude decays by a
+          factor of $e^{-\frac{\pi}{Q}}$ per oscillation. The relative change in amplitude is then
+          $1 - e^{-\frac{\pi}{Q}}$; by substituting in the $Q$ value obtained in the previous lab (about 140), the
+          amount of decay is found to be $2.2\%$, so the uncertainty is \(\pm 2\%\).
+\end{enumerate}
+
+Additionally, there may be an amplitude uncertainty resulting from imperfect computer vision tracking, but due to the
+improved setup, this can be assumed to be much less than the other sources listed above.
 
 \subsection{Data Fitting}
 

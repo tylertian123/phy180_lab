@@ -5,7 +5,6 @@ import tikzplotlib
 import numpy as np
 import argparse
 import itertools
-import statistics
 
 
 def load_data(file: TextIO) -> Tuple[np.ndarray, np.ndarray]:
@@ -28,10 +27,11 @@ def load_data(file: TextIO) -> Tuple[np.ndarray, np.ndarray]:
     return np.array(x_data), np.array(y_data)
 
 
-def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: float) -> Tuple[np.ndarray, np.ndarray]:
+def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     peaks, _ = signal.find_peaks(y_data, height=0, threshold=0)
     peak_x = []
     peak_y = []
+    x_stdev = []
     i = 0
     while i < len(peaks):
         n = 1
@@ -40,23 +40,24 @@ def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: floa
                 n += 1
             else:
                 break
-        x = statistics.median(x_data[peaks[k + i]] for k in range(n))
-        y = max(y_data[peaks[k + i]] for k in range(n))
+        x = sum(x_data[peaks[k + i]] for k in range(n)) / n
+        y = sum(y_data[peaks[k + i]] for k in range(n)) / n
         peak_x.append(x)
         peak_y.append(y)
+        x_stdev.append(np.std(np.fromiter((x_data[peaks[k + i]] for k in range(n)), float, n)))
         i += n
-    return np.array(peak_x), np.array(peak_y)
+    return np.array(peak_x), np.array(peak_y), np.array(x_stdev)
 
 
 def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, half_oscillations: bool,
          save_graph: Optional[TextIO], xlim: List[float], ylim: List[float], no_write: bool, n: int) -> None:
-    print(xlim)
     x_data, y_data = load_data(data_in)
     if n is not None:
         x_data = x_data[:n]
         y_data = y_data[:n]
-    max_x, max_y = averaged_peaks(x_data, y_data, merge_threshold)
-    min_x, min_y = averaged_peaks(x_data, -y_data, merge_threshold)
+    max_x, max_y, max_x_stdev = averaged_peaks(x_data, y_data, merge_threshold)
+    min_x, min_y, min_x_stdev = averaged_peaks(x_data, -y_data, merge_threshold)
+    print("x stdev: ", max(np.max(max_x_stdev), np.max(min_x_stdev)))
     # Because it was negated when passed into averaged_peaks
     min_y = -min_y
     if not no_write:
