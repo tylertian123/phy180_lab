@@ -61,35 +61,36 @@ def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool,
     # Because it was negated when passed into averaged_peaks
     min_y = -min_y
     if not no_write:
-        if half_oscillations:
-            # Merge both
-            peak_x = []
-            peak_y = []
-            i = j = 0
-            while i < len(min_x) and j < len(max_x):
-                if min_x[i] < max_x[j]:
-                    peak_x.append(min_x[i])
-                    peak_y.append(min_y[i])
-                    i += 1
-                else:
-                    peak_x.append(max_x[j])
-                    peak_y.append(max_y[j])
-                    j += 1
-            for k in range(i, len(min_x)):
-                peak_x.append(min_x[k])
-                peak_y.append(min_y[k])
-            for k in range(j, len(max_x)):
-                peak_x.append(max_x[k])
-                peak_y.append(max_y[k])
-            # Ideally this would go from the most negative amplitude to the most positive but I don't care enough
-            for y, x1, x2 in zip(peak_y, peak_x, itertools.islice(peak_x, 1, None)):
-                data_out.write(f"{y} {(x2 - x1) * 2}\n")
-        else:
-            # Start from the most negative amplitude (first min) and go to the most positive
-            for y, x1, x2 in itertools.chain(
-                    zip(min_y, min_x, itertools.islice(min_x, 1, None)),
-                    zip(reversed(max_y), itertools.islice(reversed(max_x), 1, None), reversed(max_x))):
-                data_out.write(f"{y} {x2 - x1}\n")
+        with open(data_out, "w", encoding="utf-8") as out_file:
+            if half_oscillations:
+                # Merge both
+                peak_x = []
+                peak_y = []
+                i = j = 0
+                while i < len(min_x) and j < len(max_x):
+                    if min_x[i] < max_x[j]:
+                        peak_x.append(min_x[i])
+                        peak_y.append(min_y[i])
+                        i += 1
+                    else:
+                        peak_x.append(max_x[j])
+                        peak_y.append(max_y[j])
+                        j += 1
+                for k in range(i, len(min_x)):
+                    peak_x.append(min_x[k])
+                    peak_y.append(min_y[k])
+                for k in range(j, len(max_x)):
+                    peak_x.append(max_x[k])
+                    peak_y.append(max_y[k])
+                # Ideally this would go from the most negative amplitude to the most positive but I don't care enough
+                for y, x1, x2 in zip(peak_y, peak_x, itertools.islice(peak_x, 1, None)):
+                    out_file.write(f"{y} {(x2 - x1) * 2}\n")
+            else:
+                # Start from the most negative amplitude (first min) and go to the most positive
+                for y, x1, x2 in itertools.chain(
+                        zip(min_y, min_x, itertools.islice(min_x, 1, None)),
+                        zip(reversed(max_y), itertools.islice(reversed(max_x), 1, None), reversed(max_x))):
+                    out_file.write(f"{y} {x2 - x1}\n")
     if graph:
         plt.scatter(x_data, y_data, label="Data", s=4)
         plt.scatter(max_x, max_y, label="Maxima", s=9)
@@ -109,7 +110,7 @@ def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process raw data from gendata.py into data for lab 2.")
     parser.add_argument("data_in", type=argparse.FileType("r", encoding="utf-8"))
-    parser.add_argument("data_out", type=argparse.FileType("w", encoding="utf-8"))
+    parser.add_argument("data_out", type=str)
     parser.add_argument("--merge-threshold", type=float, default=0.5)
     parser.add_argument("--graph", action="store_true")
     parser.add_argument("--half-oscillations", action="store_true")
