@@ -82,6 +82,7 @@ def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str):
     ax1.errorbar(x_data, y_data, xerr=x_uncert, yerr=y_uncert, fmt="o", label="Collected Data")
 
     start, stop = min(x_data) * 1.1, max(x_data) * 1.1
+    print(f"Domain: [{start}, {stop}]")
     bestfit_x = np.arange(start, stop, (stop - start) / 1000)
     # When degree is 0 since the function is reduced to a constant numpy is confused so a special case is required
     if degree == 0:
