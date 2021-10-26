@@ -62,7 +62,15 @@
 
 
 \begin{abstract}
-TODO: Abstract goes here
+In this experiment, the relationship between the period and amplitude of the pendulum from Lab 1 is determined. The
+peaks of the data are found and processed to extract data of period vs. amplitude. A power series is fit to the 
+period-amplitude data in order to determine the existence and nature of the relationship between the period and
+amplitude.
+
+The final relationship between the period and amplitude is determined to be quadratic in nature:
+$T(\theta) = (1.6333\si{s} \pm 0.0007\si{s}) + (0.111\si{s} \pm 0.002\si{s})\theta^2$ The approximation that the period
+is constant ($T = 1.662\si{s}$) is determined to be only valid for $|\theta| < 0.79\si{rad}$ or approximately
+$45\degree$.
 \end{abstract}
 
 \maketitle
@@ -71,7 +79,7 @@ TODO: Abstract goes here
 
 \section{Introduction}
 
-This experiment seeks to determine whether there exists a relationship between the amplitude and period of a pendulum.
+This experiment seeks to determine whether there exists a relationship between the period and amplitude of a pendulum.
 From Lab 1, the damped pendulum is modelled as
 \begin{equation}
     \theta(t) = \theta_0 e^{-\frac{t}{\tau}}\cos\left(2\pi\frac{t}{T} + \phi_0\right)
@@ -80,7 +88,7 @@ From Lab 1, the damped pendulum is modelled as
 where $\theta(t)$ is the angle of the pendulum in radians at time $t$, $\theta_0$ is the initial amplitude at release,
 $\tau$ is the time constant of decay, $T$ is the period and $\phi_0$ is the phase shift.
 
-According to this model, there should be no relationship between the amplitude and period of the pendulum. This lab
+According to this model, there should be no relationship between the period and amplitude of the pendulum. This lab
 seeks to confirm this by collecting amplitude-period data over multiple oscillations and trials, and fitting it to power
 series of different degrees:
 \begin{equation}
@@ -334,7 +342,31 @@ higher than 2 should all be consistent with zero. Additionally, as $B$ is shown 
 previous subsection, it can be concluded that the actual $T(\theta)$ has a form of $T(\theta) = T_0 + C\theta^2$, i.e.
 \textbf{there exists a quadratic relationship between period and amplitude}.
 
+Rounding the parameters and uncertainties gives the final equation
+\begin{equation}
+    T(\theta) = (1.6333\si{s} \pm 0.0007\si{s}) + (0.111\si{s} \pm 0.002\si{s})\theta^2
+\end{equation}
+
 \subsection{Valid Range of Constant Period Approximation}
+
+Since the relationship between period and amplitude is actually quadratic in nature, the approximation that
+$T(\theta) = T_0$ (i.e. the period is constant) is only valid for small angles where $\theta^2 \approx 0$.
+
+One way of determining when this approximation stops being valid is to see when the period as predicted by the constant
+approximation stops being consistent with the period as predicted by the quadratic model. Here "consistent" is defined
+as the values differing by no more than 2 uncertainties. Therefore, the valid range of the approximation is
+\begin{equation}
+    T(\theta) - T_0 \leq 2\epsilon
+\end{equation}
+where $T(\theta)$ is the quadratic period prediction, $T_0$ is the constant period approximation and $\epsilon$ is the
+period error. As most data points have a period error of $\pm 0.02\si{s}$, substituting this into the equation creates
+\begin{equation}
+    1.633 + 0.1109\theta^2 - 1.662 \leq 0.04
+\end{equation}
+
+Solving this inequality produces the condition $-0.79 \leq \theta \leq 0.79$. In other words, for this pendulum,
+\textbf{the constant period approximation is only valid when the absolute amplitude is no more than $0.79\si{rad}$ or
+$45\degree$}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -346,7 +378,9 @@ A comprehensive list of all source code, as well as the \LaTeX{} source for this
 \url{https://github.com/tylertian123/phys180_lab}, in particular:
 \label{appendix:code}
 \begin{enumerate}
-    \item List individual items here
+    \item Vision tracking program for collecting raw data: \url{https://github.com/tylertian123/phys180_lab/tree/lab2/gendata.py}
+    \item Program for finding the peaks of the raw data and collecting period-amplitude data: \url{https://github.com/tylertian123/phys180_lab/tree/lab2/lab2/process_data.py}
+    \item Program for fitting the power series: \url{https://github.com/tylertian123/phys180_lab/tree/lab2/lab2/fit.py}
 \end{enumerate}
 
 \end{document}
