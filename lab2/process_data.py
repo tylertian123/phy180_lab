@@ -49,48 +49,32 @@ def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: floa
     return np.array(peak_x), np.array(peak_y), np.array(x_stdev)
 
 
-def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, half_oscillations: bool,
-         save_graph: Optional[TextIO], xlim: List[float], ylim: List[float], no_write: bool, n: int) -> None:
+def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, save_graph: Optional[TextIO],
+         xlim: List[float], ylim: List[float], no_write: bool, export_extrema: TextIO, n: int) -> None:
     x_data, y_data = load_data(data_in)
     if n is not None:
         x_data = x_data[:n]
         y_data = y_data[:n]
     max_x, max_y, max_x_stdev = averaged_peaks(x_data, y_data, merge_threshold)
     min_x, min_y, min_x_stdev = averaged_peaks(x_data, -y_data, merge_threshold)
+    min_y = -min_y
+    if export_extrema is not None:
+        for x, y in zip(itertools.chain(max_x, min_x), itertools.chain(max_y, min_y)):
+            export_extrema.write(f"{x} {y}\n")
     print("x stdev: ", max(np.max(max_x_stdev), np.max(min_x_stdev)))
     # Because it was negated when passed into averaged_peaks
-    min_y = -min_y
     if not no_write:
         with open(data_out, "w", encoding="utf-8") as out_file:
-            if half_oscillations:
-                # Merge both
-                peak_x = []
-                peak_y = []
-                i = j = 0
-                while i < len(min_x) and j < len(max_x):
-                    if min_x[i] < max_x[j]:
-                        peak_x.append(min_x[i])
-                        peak_y.append(min_y[i])
-                        i += 1
-                    else:
-                        peak_x.append(max_x[j])
-                        peak_y.append(max_y[j])
-                        j += 1
-                for k in range(i, len(min_x)):
-                    peak_x.append(min_x[k])
-                    peak_y.append(min_y[k])
-                for k in range(j, len(max_x)):
-                    peak_x.append(max_x[k])
-                    peak_y.append(max_y[k])
-                # Ideally this would go from the most negative amplitude to the most positive but I don't care enough
-                for y, x1, x2 in zip(peak_y, peak_x, itertools.islice(peak_x, 1, None)):
-                    out_file.write(f"{y} {(x2 - x1) * 2}\n")
-            else:
-                # Start from the most negative amplitude (first min) and go to the most positive
-                for y, x1, x2 in itertools.chain(
-                        zip(min_y, min_x, itertools.islice(min_x, 1, None)),
-                        zip(reversed(max_y), itertools.islice(reversed(max_x), 1, None), reversed(max_x))):
-                    out_file.write(f"{y} {x2 - x1}\n")
+            for i in range(len(min_x) - 1):
+                y = min_y[i]
+                dx = min_x[i + 1] - min_x[i]
+                unc = max(min_x_stdev[i], min_x_stdev[i + 1])
+                out_file.write(f"{y} {dx} {0} {unc}\n")
+            for i in range(len(max_x) - 1):
+                y = max_y[i]
+                dx = max_x[i + 1] - max_x[i]
+                unc = max(max_x_stdev[i], max_x_stdev[i + 1])
+                out_file.write(f"{y} {dx} {0} {unc}\n")
     if graph:
         plt.scatter(x_data, y_data, label="Data", s=4)
         plt.scatter(max_x, max_y, label="Maxima", s=9)
@@ -113,10 +97,10 @@ if __name__ == "__main__":
     parser.add_argument("data_out", type=str)
     parser.add_argument("--merge-threshold", type=float, default=0.5)
     parser.add_argument("--graph", action="store_true")
-    parser.add_argument("--half-oscillations", action="store_true")
     parser.add_argument("--save-graph", type=str, default=None)
     parser.add_argument("--xlim", type=float, nargs=2, default=None)
     parser.add_argument("--ylim", type=float, nargs=2, default=None)
     parser.add_argument("--no-write", action="store_true")
+    parser.add_argument("--export-extrema", type=argparse.FileType("w", encoding="utf-8"), default=None)
     parser.add_argument("-n", type=int, default=None)
     main(**vars(parser.parse_args()))

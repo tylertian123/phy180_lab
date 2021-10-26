@@ -4,6 +4,7 @@ import pprint
 from typing import TextIO, Tuple, Union
 
 import numpy as np
+import tikzplotlib
 from matplotlib import pyplot as plt
 from scipy import optimize
 
@@ -57,7 +58,7 @@ FIT_FUNCS = [fit0, fit1, fit2, fit3, fit4]
 PARAM_NAMES = ["t0", "b", "c", "d", "e"]
 
 
-def main(data_in: TextIO, degree: int, guess_period: float):
+def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str):
     x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True)
     # Create initial guesses
     # t0 varies but the others should all be roughly 0
@@ -103,6 +104,8 @@ def main(data_in: TextIO, degree: int, guess_period: float):
     ax2.set_title("Fit Residuals")
     ax2.legend(loc="upper right")
 
+    if save_graph is not None:
+        tikzplotlib.save(save_graph)
     plt.show()
 
 
@@ -111,4 +114,5 @@ if __name__ == "__main__":
     parser.add_argument("data_in", type=argparse.FileType("r", encoding="utf-8"))
     parser.add_argument("--degree", type=int, default=0)
     parser.add_argument("--guess-period", type=float, default=1)
+    parser.add_argument("--save-graph", type=str, default=None)
     main(**vars(parser.parse_args()))

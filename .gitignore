@@ -7,6 +7,7 @@
 # Build output from TeX
 **/report/*
 !*.tex
+!**/report/*.txt
 
 __pycache__/
 .vscode/
