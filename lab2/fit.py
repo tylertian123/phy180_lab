@@ -1,15 +1,17 @@
 import argparse
 import functools
-import pprint
 from typing import TextIO, Tuple, Union
 
 import numpy as np
-import tikzplotlib
 from matplotlib import pyplot as plt
 from scipy import optimize
+try:
+    import tikzplotlib
+except ImportError:
+    pass
 
 
-def load_data(file: TextIO, uncert: bool = False) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+def load_data(file: TextIO, uncert: bool = False, sep: str = None) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
     # Load data
     # Note this version does not subtract the initial time
     x_data = []
@@ -20,7 +22,7 @@ def load_data(file: TextIO, uncert: bool = False) -> Union[Tuple[np.ndarray, np.
         line = line.strip()
         if not line or line.startswith("#"):
             continue
-        pcs = line.split()
+        pcs = line.split(sep)
         time = float(pcs[0])
         angle = float(pcs[1])
         x_data.append(time)
@@ -54,12 +56,20 @@ def fit4(theta: float, t0: float, b: float, c: float, d: float, e: float) -> flo
     return t0 + theta * b + theta ** 2 * c + theta ** 3 * d + theta ** 4 * e
 
 
-FIT_FUNCS = [fit0, fit1, fit2, fit3, fit4]
-PARAM_NAMES = ["t0", "b", "c", "d", "e"]
+def fit5(theta: float, t0: float, b: float, c: float, d: float, e: float, f: float) -> float:
+    return t0 + theta * b + theta ** 2 * c + theta ** 3 * d + theta ** 4 * e + theta ** 5 * f
 
 
-def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str):
-    x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True)
+def fit6(theta: float, t0: float, b: float, c: float, d: float, e: float, f: float, g: float) -> float:
+    return t0 + theta * b + theta ** 2 * c + theta ** 3 * d + theta ** 4 * e + theta ** 5 * f + theta ** 6 * g
+
+
+FIT_FUNCS = [fit0, fit1, fit2, fit3, fit4, fit5, fit6]
+PARAM_NAMES = ["t0", "b", "c", "d", "e", "f", "g"]
+
+
+def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep: str):
+    x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True, sep=sep)
     # Create initial guesses
     # t0 varies but the others should all be roughly 0
     guess = [guess_period] + [0] * degree
@@ -69,9 +79,11 @@ def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str):
     params = {name: val for name, val in zip(PARAM_NAMES, popt)}
     stdevs = {name: np.sqrt(pcov[i, i]) for name, i in zip(PARAM_NAMES, range(degree + 1))}
     print("Fit Parameters:")
-    pprint.pprint(params, sort_dicts=False)
-    print("Standard Deviations:")
-    pprint.pprint(stdevs, sort_dicts=False)
+    for name, val in params.items():
+        print(f"{name.upper()}\t{val}")
+    print("Standard Deviations (Uncertainties):")
+    for name, val in stdevs.items():
+        print(f"{name.upper()}\t{val}")
     # Create a new function with the optimal fit parameters
     bestfit = functools.partial(FIT_FUNCS[degree], **params)
 
@@ -111,9 +123,10 @@ def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Fit data for lab 2.0")
-    parser.add_argument("data_in", type=argparse.FileType("r", encoding="utf-8"))
-    parser.add_argument("--degree", type=int, default=0)
-    parser.add_argument("--guess-period", type=float, default=1)
-    parser.add_argument("--save-graph", type=str, default=None)
+    parser = argparse.ArgumentParser(description="Fit period-amplitude data to a power series for Lab 2.")
+    parser.add_argument("data_in", type=argparse.FileType("r", encoding="utf-8"), help="The input file. Each line in the file should contain 2 data values, and optionally 2 uncertainty values, separated by spaces or SEP.")
+    parser.add_argument("--degree", "-d", type=int, default=0, help="The max degree of the power series. Supported values are 0 (default) to 6. The degree is the number of terms minus 1, since the first term has degree 0.")
+    parser.add_argument("--guess-period", "-p", type=float, default=1, help="An initial guess for the period (T0) of the pendulum. The default is 1s, but if your pendulum has a much longer or shorter period you may want to adjust this.")
+    parser.add_argument("--save-graph", type=str, default=None, help="Save the graph to a TeX file. Requires tikzplotlib.")
+    parser.add_argument("--sep", "-s", type=str, default=None, help="Separator between 2 data values in the input file. Default is any whitespace, but can be set to any string, e.g. set this to a comma if your data is a CSV.")
     main(**vars(parser.parse_args()))

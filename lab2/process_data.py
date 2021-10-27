@@ -31,7 +31,7 @@ def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: floa
     peaks, _ = signal.find_peaks(y_data, height=0, threshold=0)
     peak_x = []
     peak_y = []
-    x_stdev = []
+    x_uncertainty = []
     i = 0
     while i < len(peaks):
         n = 1
@@ -44,9 +44,9 @@ def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: floa
         y = sum(y_data[peaks[k + i]] for k in range(n)) / n
         peak_x.append(x)
         peak_y.append(y)
-        x_stdev.append(np.std(np.fromiter((x_data[peaks[k + i]] for k in range(n)), float, n)))
+        x_uncertainty.append(np.std(np.fromiter((x_data[peaks[k + i]] for k in range(n)), float, n)) / np.sqrt(n))
         i += n
-    return np.array(peak_x), np.array(peak_y), np.array(x_stdev)
+    return np.array(peak_x), np.array(peak_y), np.array(x_uncertainty)
 
 
 def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool, save_graph: Optional[TextIO],
@@ -55,25 +55,24 @@ def main(data_in: TextIO, data_out: TextIO, merge_threshold: float, graph: bool,
     if n is not None:
         x_data = x_data[:n]
         y_data = y_data[:n]
-    max_x, max_y, max_x_stdev = averaged_peaks(x_data, y_data, merge_threshold)
-    min_x, min_y, min_x_stdev = averaged_peaks(x_data, -y_data, merge_threshold)
+    max_x, max_y, max_uncert = averaged_peaks(x_data, y_data, merge_threshold)
+    min_x, min_y, min_uncert = averaged_peaks(x_data, -y_data, merge_threshold)
     min_y = -min_y
     if export_extrema is not None:
         for x, y in zip(itertools.chain(max_x, min_x), itertools.chain(max_y, min_y)):
             export_extrema.write(f"{x} {y}\n")
-    print("x stdev: ", max(np.max(max_x_stdev), np.max(min_x_stdev)))
     # Because it was negated when passed into averaged_peaks
     if not no_write:
         with open(data_out, "w", encoding="utf-8") as out_file:
             for i in range(len(min_x) - 1):
                 y = min_y[i]
                 dx = min_x[i + 1] - min_x[i]
-                unc = max(min_x_stdev[i], min_x_stdev[i + 1])
+                unc = max(min_uncert[i], min_uncert[i + 1])
                 out_file.write(f"{y} {dx} {0} {unc}\n")
             for i in range(len(max_x) - 1):
                 y = max_y[i]
                 dx = max_x[i + 1] - max_x[i]
-                unc = max(max_x_stdev[i], max_x_stdev[i + 1])
+                unc = max(max_uncert[i], max_uncert[i + 1])
                 out_file.write(f"{y} {dx} {0} {unc}\n")
     if graph:
         plt.scatter(x_data, y_data, label="Data", s=4)

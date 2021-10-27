@@ -68,7 +68,7 @@ period-amplitude data in order to determine the existence and nature of the rela
 amplitude.
 
 The final relationship between the period and amplitude is determined to be quadratic in nature:
-$T(\theta) = (1.6333\si{s} \pm 0.0007\si{s}) + (0.111\si{s} \pm 0.002\si{s})\theta^2$ The approximation that the period
+$T(\theta) = (1.63\si{s} \pm 0.05\si{s}) + (0.111\si{s} \pm 0.003\si{s})\theta^2$ The approximation that the period
 is constant ($T = 1.662\si{s}$) is determined to be only valid for $|\theta| < 0.79\si{rad}$ or approximately
 $45\degree$.
 \end{abstract}
@@ -175,8 +175,8 @@ These are the sources of uncertainty resulting from this method:
           collection was only 30 data points/second.})
     \item Period uncertainty from noise in the data and inaccuracies in peak finding: Due to noise in the data,
           sometimes the true peak location is not apparent. The code attempts to correct this by taking the mean of all
-          peak candidates. The standard deviation of the time values of the peak candidates is used as the uncertainty,
-          which is computed individually for each data point as it varies.
+          peak candidates. The uncertainty of the mean ($\frac{\sigma}{\sqrt{N}}$) of the peak candidates is used as the
+          uncertainty, which is computed individually for each data point as it varies.
     \item Amplitude uncertainty caused by the previous two uncertainties: Since the true peak may lie between two data
           points (as per \textcircled{1}) and is influenced by noise (as per \textcircled{2}), this creates an
           uncertainty. As the exact value of this uncertainty is hard to find, it is assumed to be the same in
@@ -234,25 +234,29 @@ Table \ref{table:fit} shows the optimal parameters resulting from fitting power 
 Note that the parameter and uncertainty values in Table \ref{table:fit} are unrounded to allow for later analysis;
 refer to later sections for properly rounded values.
 
+The uncertainties in Table \ref{table:fit} take into account both the uncertainties created by the fit and the
+uncertainties in the period and amplitude data that carries through, by taking the maximum of the two. The maximum
+relative uncertainty for any data point was determined to be 2.95\%.
+
 \begin{table}[h]
     \begin{tabular}{c|c|r|r}
-        Degree & Param. & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c}{Uncertainty} \\
+        Degree & Param. & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c}{Max Uncertainty} \\
         \hline
-        0                  & $T_0$ & 1.662 & \pm 0.00144 \\
+        0                  & $T_0$ & 1.662 & \pm 0.0490 \\
         \hline
-        \multirow{2}{*}{1} & $T_0$ & 1.662 & \pm 0.00144 \\
+        \multirow{2}{*}{1} & $T_0$ & 1.662 & \pm 0.0490 \\
                            & $B$ & -0.00298 & \pm 0.00283 \\
         \hline
-        \multirow{3}{*}{2} & $T_0$ & 1.633 & \pm 0.000747 \\
+        \multirow{3}{*}{2} & $T_0$ & 1.633 & \pm 0.0481 \\
                            & $B$ & 0.00257 & \pm 0.00129 \\
-                           & $C$ & 0.1109 & \pm 0.00161 \\
+                           & $C$ & 0.1109 & \pm 0.00327 \\
         \hline
-        \multirow{4}{*}{3} & $T_0$ & 1.633 & \pm 0.000748 \\
+        \multirow{4}{*}{3} & $T_0$ & 1.633 & \pm 0.0481 \\
                            & $B$ & 0.00323 & \pm 0.00201 \\
-                           & $C$ & 0.1108 & \pm 0.00162 \\
+                           & $C$ & 0.1108 & \pm 0.00326 \\
                            & $D$ & -0.000788 & \pm 0.00190 \\
         \hline
-        \multirow{5}{*}{4} & $T_0$ & 1.634 & \pm 0.000897 \\
+        \multirow{5}{*}{4} & $T_0$ & 1.634 & \pm 0.0481 \\
                            & $B$ & 0.00283 & \pm 0.00202 \\
                            & $C$ & 0.1041 & \pm 0.00449 \\
                            & $D$ & -0.000177 & \pm 0.00194 \\
@@ -343,7 +347,7 @@ previous subsection, it can be concluded that the actual $T(\theta)$ has a form 
 
 Rounding the parameters and uncertainties gives the final equation
 \begin{equation}
-    T(\theta) = (1.6333\si{s} \pm 0.0007\si{s}) + (0.111\si{s} \pm 0.002\si{s})\theta^2
+    T(\theta) = (1.63\si{s} \pm 0.05\si{s}) + (0.111\si{s} \pm 0.003\si{s})\theta^2
 \end{equation}
 
 \subsection{Valid Range of Constant Period Approximation}
@@ -358,7 +362,7 @@ as the values differing by no more than 2 uncertainties. Therefore, the valid ra
     T(\theta) - T_0 \leq 2\epsilon
 \end{equation}
 where $T(\theta)$ is the quadratic period prediction, $T_0$ is the constant period approximation and $\epsilon$ is the
-period error. As most data points have a period error of $\pm 0.02\si{s}$, substituting this into the equation creates
+period error. As most data points have a period uncertainty of $\pm 0.02\si{s}$, substituting this into the equation creates
 \begin{equation}
     1.633 + 0.1109\theta^2 - 1.662 \leq 0.04
 \end{equation}

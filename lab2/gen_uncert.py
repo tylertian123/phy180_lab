@@ -17,15 +17,21 @@ def main(data_in: TextIO, data_out: TextIO, x_uncert: float, y_uncert: float, x_
         existing_yu = itertools.repeat(0)
     xu = []
     yu = []
+    max_rel_x_unc = 0
+    max_rel_y_unc = 0
     for x, y, exu, eyu in zip(x_data, y_data, existing_xu, existing_yu):
-        x_unc = max(x_uncert, abs(x_rel_uncert * x), exu, eyu)
-        y_unc = max(y_uncert, abs(y_rel_uncert * y), exu, eyu)
+        x_unc = max(x_uncert, abs(x_rel_uncert * x), exu)
+        y_unc = max(y_uncert, abs(y_rel_uncert * y), eyu)
         if x_dep:
             x_unc = max(x_unc, abs((y_unc / y) * x))
         if y_dep:
             y_unc = max(y_unc, abs((x_unc / x) * y))
         xu.append(x_unc)
         yu.append(y_unc)
+        max_rel_x_unc = max(max_rel_x_unc, abs(x_unc / x))
+        max_rel_y_unc = max(max_rel_y_unc, abs(y_unc / y))
+    print("Max relative x uncertainty:", max_rel_x_unc)
+    print("Max relative y uncertainty:", max_rel_y_unc)
     for x, y, x_unc, y_unc in zip(x_data, y_data, xu, yu):
         data_out.write(f"{x} {y} {x_unc} {y_unc}\n")
 
