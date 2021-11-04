@@ -19,12 +19,13 @@
 \usepackage{color}         % produces boxes or entire pages with colored backgrounds
 \usepackage{graphics}      % standard graphics specifications
 \usepackage[pdftex]{graphicx}      % alternative graphics specifications
-\usepackage{longtable}     % helps with long table options
 \usepackage{epsf}          % old package handles encapsulated post script issues
 \usepackage{bm}            % special 'bold-math' package
 \usepackage{verbatim}			% for comment environment
 \usepackage[colorlinks=true]{hyperref}  % this package should be added after all others
                                         % use as follows: \url{https://urldefense.proofpoint.com/v2/url?u=http-3A__web.mit.edu_8.13&d=DwICAg&c=sJ6xIWYx-zLMB3EPkvcnVg&r=D88uS55Tats-jlFQAC1XryFUYq8B7Lk3StFbXzgsiB4&m=Vjrc9Wj5n5rkIDMPJ5VsRj2GyXC3yXmN_zDHey6dVio&s=_byqsJfgO464rVIugNWFPmbBeIYfNiJcGS1fgIwc0m4&e= }
+
+\usepackage{subcaption}
 \usepackage{siunitx}
 \usepackage{gensymb}
 \usepackage{tikz}
@@ -266,55 +267,119 @@ relative uncertainty for any data point was determined to be 2.95\%.
     \label{table:fit}
 \end{table}
 
-Graphs of the fit are shown for degrees 0 to 2 in Figure \ref{fig:fit}. Uncertainty bars are not drawn to keep the graph
-readable, since there are too many data points.
+Graphs of the fit and residuals are shown for degrees 0 to 2 in Figures \ref{fig:fit} to \ref{fig:residuals2}.
+Uncertainty bars are omitted for Figure \ref{fig:fit} to keep the graph readable, since there are too many data points.
 
 \begin{figure*}[t]
     \centering
-    \begin{tikzpicture}
-        \begin{axis}[
-            title=Period vs. Amplitude,
-            xlabel=Amplitude (rad),
-            ylabel=Period (s),
-            xmin=-1.8,
-            xmax=1.8,
-            xtick distance=0.3,
-            legend entries={Collected Data, Degree 0 Fit, Degree 1 Fit, Degree 2 Fit},
-            legend style={
-                at={(0.5, 0.98)},
-                anchor=north
-            },
-            width=\textwidth,
-            height=0.5\textwidth,
-        ]
-            \addplot+[
-                black,
-                mark options={fill=black},
-                only marks,
-                mark size=1pt,
-            ] table [x index=0, y index=1] {fit_data.txt};
-            \addplot[
-                blue,
-                very thick,
-                domain=-1.6:1.6,
-                samples=3,
-            ] {1.662};
-            \addplot[
-                red!75!white,
-                very thick,
-                domain=-1.6:1.6,
-                samples=3,
-            ] {1.662 - 0.00298*x};
-            \addplot[
-                darkgreen,
-                very thick,
-                domain=-1.6:1.6,
-                samples=200,
-            ] {1.633 + 0.00257*x + 0.1109*x^2};
-        \end{axis}
-    \end{tikzpicture}
-    \caption{Result of fitting a 0, 1, and 2 degree power series to the data. Error bars are omitted for readability.}
-    \label{fig:fit}
+    \begin{subfigure}{\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Period vs. Amplitude,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                xmin=-1.8,
+                xmax=1.8,
+                xtick distance=0.3,
+                legend entries={Collected Data, Degree 0 Fit, Degree 1 Fit, Degree 2 Fit},
+                legend style={
+                    at={(0.5, 0.98)},
+                    anchor=north
+                },
+                width=\textwidth,
+                height=0.5\textwidth,
+            ]
+                \addplot+[
+                    black,
+                    mark options={fill=black},
+                    only marks,
+                    mark size=1pt,
+                ] table [x index=0, y index=1] {fit_data.txt};
+                \addplot[
+                    blue,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=3,
+                ] {1.662};
+                \addplot[
+                    red!75!white,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=3,
+                ] {1.662 - 0.00298*x};
+                \addplot[
+                    darkgreen,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=200,
+                ] {1.633 + 0.00257*x + 0.1109*x^2};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Result of fitting a 0, 1, and 2 degree power series to the data. Error bars are omitted for readability.}
+        \label{fig:fit}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Residuals for Degree 0 Fit,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major}
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                ] table [
+                    x index=0,
+                    y index=1,
+                    x error index=2,
+                    y error index=3,
+                ] {residuals_deg0.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Residuals from fitting the data to \(T(\theta) = T_0\).}
+        \label{fig:residuals0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Residuals for Degree 2 Fit,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+                yticklabel style={
+                    /pgf/number format/precision=3,
+                    /pgf/number format/fixed
+                }
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                ] table [
+                    x index=0,
+                    y index=1,
+                    x error index=2,
+                    y error index=3,
+                ] {residuals_deg2.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Residuals from fitting the data to \(T(\theta) = T_0 + B\theta + C\theta^2\).}
+        \label{fig:residuals2}
+    \end{subfigure}
 \end{figure*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -338,6 +403,17 @@ concluded that \textbf{there is no asymmetry in the pendulum}.
 From simply observing Figure \ref{fig:fit}, it is clear that the data forms a distinct pattern that is not
 well-approximated by a constant or linear model of $T(\theta)$. Indeed, the value of $C$, the quadratic term, is always
 much larger than its uncertainty (always more than $20 \times$).
+
+By examining the residuals of the degree 0 fit in Figure \ref{fig:residuals0}, it is clear that \(T(\theta) = T_0\) is
+not a correct model for the data, as there is a clear parabolic pattern in the residuals, with some points having a
+residual more than 5 times their uncertainty. On the other hand, the residuals of the degree 2 fit in Figure
+\ref{fig:residuals2} exhibit no clear pattern, especially when \(\theta\) is large.
+
+Note there appears to be a pattern resembling a downward parabola in Figure \ref{fig:residuals2} when \(\theta\) is small.
+This can be attributed to the discretization of time due to the data collection method. Because angle data is taken 30
+times per second, the period has a resolution of \(1/30\si{s}\) without averaging. This is evident in Figure
+\ref{fig:fit} as most data points seem to lie on discrete horizontal lines. Despite the pattern, the residual points are
+evenly distributed above and below the zero line, indicating a good fit.
 
 Furthermore, the higher-degree terms $D$ and $E$ are both smaller than 2 times their uncertainties, so they are
 consistent with zero. This suggests a trend that no matter how many terms are in the equation, the terms with degree
@@ -378,7 +454,7 @@ $45\degree$}.
 \section{Source Code}
 
 A comprehensive list of all source code, as well as the \LaTeX{} source for this report, can be found on GitHub at
-\url{https://github.com/tylertian123/phys180_lab}, in particular:
+\url{https://github.com/tylertian123/phys180_lab/tree/lab2/}, in particular:
 \label{appendix:code}
 \begin{enumerate}
     \item Vision tracking program for collecting raw data: \url{https://github.com/tylertian123/phys180_lab/tree/lab2/gendata.py}
