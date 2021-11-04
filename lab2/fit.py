@@ -68,7 +68,7 @@ FIT_FUNCS = [fit0, fit1, fit2, fit3, fit4, fit5, fit6]
 PARAM_NAMES = ["t0", "b", "c", "d", "e", "f", "g"]
 
 
-def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep: str):
+def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep: str, save_residuals: str):
     x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True, sep=sep)
     # Create initial guesses
     # t0 varies but the others should all be roughly 0
@@ -111,6 +111,10 @@ def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep
     residuals = y_data - bestfit(x_data)
     ax2.errorbar(x_data, residuals, xerr=x_uncert, yerr=y_uncert, fmt="o", label="Residuals")
     ax2.plot([start, stop], [0, 0], "r", label="Zero Line")
+    if save_residuals is not None:
+        with open(save_residuals, "w", encoding="utf-8") as f:
+            for vals in zip(x_data, residuals, x_uncert, y_uncert):
+                f.write(" ".join(str(s) for s in vals) + "\n")
 
     ax2.set_xlabel("Initial Amplitude $\\theta$ (rad)")
     ax2.set_ylabel("Error $t_0 - T_0(\\theta)$ (s)")
@@ -128,5 +132,6 @@ if __name__ == "__main__":
     parser.add_argument("--degree", "-d", type=int, default=0, help="The max degree of the power series. Supported values are 0 (default) to 6. The degree is the number of terms minus 1, since the first term has degree 0.")
     parser.add_argument("--guess-period", "-p", type=float, default=1, help="An initial guess for the period (T0) of the pendulum. The default is 1s, but if your pendulum has a much longer or shorter period you may want to adjust this.")
     parser.add_argument("--save-graph", type=str, default=None, help="Save the graph to a TeX file. Requires tikzplotlib.")
+    parser.add_argument("--save-residuals", type=str, default=None, help="Save the fit residuals to a txt file.")
     parser.add_argument("--sep", "-s", type=str, default=None, help="Separator between 2 data values in the input file. Default is any whitespace, but can be set to any string, e.g. set this to a comma if your data is a CSV.")
     main(**vars(parser.parse_args()))
