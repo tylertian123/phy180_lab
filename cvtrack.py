@@ -12,8 +12,8 @@ def process_img(img, fx=None, fy=None):
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    binary1 = cv2.inRange(hsv, (0, 75, 80), (10, 255, 160))
-    binary2 = cv2.inRange(hsv, (170, 75, 80), (180, 255, 160))
+    binary1 = cv2.inRange(hsv, (0, 75, 80), (10, 255, 255))
+    binary2 = cv2.inRange(hsv, (170, 75, 80), (180, 255, 255))
     binary = binary1 + binary2
 
     try:
@@ -26,7 +26,7 @@ def process_img(img, fx=None, fy=None):
         largest = max(contours, key=cv2.contourArea)
         x, y = center(largest)
 
-        green_binary = cv2.inRange(hsv, (40, 50, 80), (60, 255, 255))
+        green_binary = cv2.inRange(hsv, (37, 50, 80), (60, 255, 255))
         try:
             pivot_x, pivot_y = center(green_binary)
         except ZeroDivisionError as e:

@@ -18,7 +18,8 @@ def main(vid_name: str, start_time: int, frame_delay: Optional[int], fx: Optiona
         sys.exit(1)
 
     ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img, fx=fx, fy=fy)
-    img = cv2.resize(img, None, fx=fx, fy=fy)
+    if fx is not None and fy is not None:
+        img = cv2.resize(img, None, fx=fx, fy=fy)
     cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
     cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
@@ -40,7 +41,8 @@ def main(vid_name: str, start_time: int, frame_delay: Optional[int], fx: Optiona
         if not success:
             break
         ((x, y), (pivot_x, pivot_y)), (binary, green_binary) = cvtrack.process_img(img, fx=fx, fy=fy)
-        img = cv2.resize(img, None, fx=fx, fy=fy)
+        if fx is not None and fy is not None:
+            img = cv2.resize(img, None, fx=fx, fy=fy)
         cv2.circle(img, (x, y), 3, (0, 255, 0), thickness=cv2.FILLED)
         cv2.circle(img, (pivot_x, pivot_y), 3, (0, 0, 255), thickness=cv2.FILLED)
 
