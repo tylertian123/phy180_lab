@@ -9,5 +9,7 @@
 !*.tex
 !**/report/*.txt
 
+**/failure_*.png
+
 __pycache__/
 .vscode/
