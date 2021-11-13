@@ -5,6 +5,7 @@ import math
 import numpy as np
 import itertools
 import pathlib
+import sys
 from process_data import averaged_peaks
 from typing import TextIO, Tuple
 
@@ -24,12 +25,15 @@ def parse_time(t: str, framerate: int = 30) -> float:
 @click.argument("data_out", type=click.File("w"))
 @click.option("--fx", type=click.FloatRange(min=0, min_open=True), default=None, help="X scaling factor")
 @click.option("--fy", type=click.FloatRange(min=0, min_open=True), default=None, help="Y scaling factor")
-@click.option("--merge-threshold", type=click.FloatRange(min=0), default=0.25, help="Minimum time between peaks for them to be recognized as distinct")
-@click.option("--x-uncert", type=float, default=0, help="Absolute uncertainty for every x value")
-@click.option("--x-rel-uncert", type=float, default=0, help="Relative uncertainty for every x value")
-@click.option("--y-uncert", type=float, default=0, help="Absolute uncertainty for every y value")
-@click.option("--y-rel-uncert", type=float, default=0, help="Relative uncertainty for every y value")
-def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_threshold: float, x_uncert: float, x_rel_uncert: float, y_uncert: float, y_rel_uncert: float) -> None:
+@click.option("--merge-threshold", "-m", type=click.FloatRange(min=0), default=0.25, help="Minimum time between peaks for them to be recognized as distinct")
+@click.option("--x-uncert", "--xu", type=float, default=0, help="Absolute uncertainty for every x value")
+@click.option("--x-rel-uncert", "--xru", type=float, default=0, help="Relative uncertainty for every x value")
+@click.option("--y-uncert", "--yu", type=float, default=0, help="Absolute uncertainty for every y value")
+@click.option("--y-rel-uncert", "--yru", type=float, default=0, help="Relative uncertainty for every y value")
+@click.option("--offset", "-o", type=float, default=0, help="Subtract an offset from all x values")
+@click.option("--negate/--no-negate", "-n/-N", default=False, help="Negate x values")
+def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_threshold: float, x_uncert: float,
+         x_rel_uncert: float, y_uncert: float, y_rel_uncert: float, offset: float, negate: bool) -> None:
     """
     Generate period data.
 
@@ -37,32 +41,55 @@ def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_t
     """
     
     cap = None # type: cv2.VideoCapture
+    current_x = 0
+    x_step = 0
     with times_in.open() as f:
         for line in f:
-            if line.startswith("#"):
+            line = line.strip()
+            if line.startswith("#") or not line:
                 continue
             pcs = line.split()
-            if pcs[0] == "!v" or pcs[0] == "!video":
-                if pathlib.Path(pcs[1]).is_absolute():
-                    vidpath = pcs[1]
-                else:
-                    vidpath = str(times_in.with_name(pcs[1]))
-                print(f"Using video file {vidpath}")
-                cap = cv2.VideoCapture(vidpath)
-                if cap is None or not cap.isOpened():
-                    print(f"Error: Video file {vidpath} not openable!")
-                    break
+            if pcs[0].startswith("!"):
+                pcs[0] = pcs[0][1:]
+                if pcs[0] == "v" or pcs[0] == "video":
+                    if pathlib.Path(pcs[1]).is_absolute():
+                        vidpath = pcs[1]
+                    else:
+                        vidpath = str(times_in.with_name(pcs[1]))
+                    print(f"Using video file {vidpath}")
+                    cap = cv2.VideoCapture(vidpath)
+                    if cap is None or not cap.isOpened():
+                        print(f"Error: Video file {vidpath} not openable!")
+                        sys.exit(1)
+                elif pcs[0] == "echo":
+                    print(line[6:])
+                elif pcs[0] == "xval":
+                    current_x = float(pcs[1])
+                elif pcs[0] == "xstep":
+                    x_step = float(pcs[1])
+                elif pcs[0] == "xoffset":
+                    offset = float(pcs[1])
+                elif pcs[0] == "xnegate":
+                    negate = pcs[1].lower() != "false"
                 continue
             if cap is None:
                 print("Error: A video file must be specified first with !v <file> or !video <file>.")
-                break
-            x_val = float(pcs[0])
-            start, stop = pcs[1].split("-")
+                sys.exit(1)
+            if pcs[0] == "~":
+                x_val = current_x
+                current_x += x_step
+            else:
+                x_val = float(pcs[0])
+            x_val -= offset
+            if negate:
+                x_val = -x_val
+            
+            time_range = pcs[1]
+            start, stop = time_range.split("-")
             start = parse_time(start)
             stop = parse_time(stop)
 
-            print(f"Processing range {start}ms to {stop}ms")
-            print("Extracting angle data")
+            print(f"Processing x={x_val}, range {start}ms to {stop}ms")
             cap.set(cv2.CAP_PROP_POS_MSEC, start)
             time = []
             angle = []
@@ -75,8 +102,10 @@ def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_t
                 time.append(ms / 1000)
                 angle.append(math.atan2(x - pivot_x, y - pivot_y))
 
-            print("Finding peaks")
             peak_x, _, peak_uncert = averaged_peaks(np.array(time), np.array(angle), merge_threshold)
+            if len(peak_x) < 2:
+                print(f"Error: Less than 2 peaks found for range {start}ms to {stop}ms ({time_range}). Check your ranges?")
+                sys.exit(1)
             periods = np.fromiter((b - a for a, b in zip(peak_x, itertools.islice(peak_x, 1, None))), dtype=np.float64)
             period = np.mean(periods)
             period_uncert = np.std(periods) / np.sqrt(len(periods))
