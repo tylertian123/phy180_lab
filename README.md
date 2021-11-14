@@ -1,12 +1,7 @@
-# Python Source Code for Data Analysis of PHY180H1 Lab
+# Python Source Code for PHY180H1 Pendulum Lab
 
-| Source | Purpose |
-| --- | --- |
-| `cvtrack.py` | Generate time-angle data from a video of the pendulum using OpenCV. |
-| `cvtrack_core.py` | Core logic and visual demo for tracking pendulum angle using OpenCV. |
-| `find_q.py` | Find the Q value in the data by counting oscillations. |
-| `fit.py` | Fit the mathematical model to real data and generate a graph and Q value. |
-| `fit_nophi.py` | Like `fit.py`, but does not have a phase shift. |
+Lab-specific code is located under the directory for each lab. Shared code is in the main directory.
+LaTeX source code for each report is located at `labX/report/report.tex`, where `labX` is the directory for the lab.
 
-LaTeX sources are located in `report/`.
-
+Required libraries for Python are listed in `requirements.txt`.
+LaTeX code is complied with LuaTex Version 1.13.2 (TeX Live 2021).
