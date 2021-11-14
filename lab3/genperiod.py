@@ -1,3 +1,4 @@
+import ast
 import click
 import cv2
 import cvtrack
@@ -7,7 +8,8 @@ import itertools
 import pathlib
 import sys
 from process_data import averaged_peaks
-from typing import TextIO, Tuple
+from typing import List, TextIO, Tuple
+from matplotlib import pyplot as plt
 
 
 def parse_time(t: str, framerate: int = 30) -> float:
@@ -32,8 +34,11 @@ def parse_time(t: str, framerate: int = 30) -> float:
 @click.option("--y-rel-uncert", "--yru", type=float, default=0, help="Relative uncertainty for every y value")
 @click.option("--offset", "-o", type=float, default=0, help="Subtract an offset from all x values")
 @click.option("--negate/--no-negate", "-n/-N", default=False, help="Negate x values")
+@click.option("--plot/--no-plot", default=False, help="Plot extracted angle data")
+@click.option("--peak-option", "-p", multiple=True, type=(str, str), help="Additional kwargs to pass to scipy.signal.find_peaks()")
 def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_threshold: float, x_uncert: float,
-         x_rel_uncert: float, y_uncert: float, y_rel_uncert: float, offset: float, negate: bool) -> None:
+         x_rel_uncert: float, y_uncert: float, y_rel_uncert: float, offset: float, negate: bool, plot: bool,
+         peak_option: List[Tuple[str, str]]) -> None:
     """
     Generate period data.
 
@@ -43,6 +48,7 @@ def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_t
     cap = None # type: cv2.VideoCapture
     current_x = 0
     x_step = 0
+    peak_options = {arg: ast.literal_eval(val) for arg, val in peak_option}
     with times_in.open() as f:
         for line in f:
             line = line.strip()
@@ -102,7 +108,11 @@ def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_t
                 time.append(ms / 1000)
                 angle.append(math.atan2(x - pivot_x, y - pivot_y))
 
-            peak_x, _, peak_uncert = averaged_peaks(np.array(time), np.array(angle), merge_threshold)
+            peak_x, peak_y, peak_uncert = averaged_peaks(np.array(time), np.array(angle), merge_threshold, options=peak_options)
+            if plot:
+                plt.scatter(time, angle)
+                plt.scatter(peak_x, peak_y)
+                plt.show()
             if len(peak_x) < 2:
                 print(f"Error: Less than 2 peaks found for range {start}ms to {stop}ms ({time_range}). Check your ranges?")
                 sys.exit(1)

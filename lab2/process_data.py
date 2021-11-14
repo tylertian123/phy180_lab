@@ -27,8 +27,8 @@ def load_data(file: TextIO) -> Tuple[np.ndarray, np.ndarray]:
     return np.array(x_data), np.array(y_data)
 
 
-def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    peaks, _ = signal.find_peaks(y_data, height=0, threshold=0)
+def averaged_peaks(x_data: np.ndarray, y_data: np.ndarray, merge_threshold: float, options: dict = {}) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    peaks, _ = signal.find_peaks(y_data, height=0, threshold=0, **options)
     peak_x = []
     peak_y = []
     x_uncertainty = []

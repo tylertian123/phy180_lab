@@ -1,0 +1,86 @@
+% Template source: University of Florida Department of Physics, https://www.phys.ufl.edu/courses/phy4803L/sample-paper.zip
+
+\documentclass[aps,twocolumn,secnumarabic,nobalancelastpage,amsmath,amssymb,nofootinbib,floatfix]{revtex4}
+
+% Documentclass Options
+    % aps, prl, rmp stand for American Physical Society, Physical Review Letters, and Reviews of Modern Physics, respectively
+    % twocolumn permits two columns, of course
+    % nobalancelastpage doesn't attempt to equalize the lengths of the two columns on the last page
+        % as might be desired in a journal where articles follow one another closely
+    % amsmath and amssymb are necessary for the subequations environment among others
+    % secnumarabic identifies sections by number to aid electronic review and commentary.
+    % nofootinbib forces footnotes to occur on the page where they are first referenced
+        % and not in the bibliography
+    % REVTeX 4 is a set of macro packages designed to be used with LaTeX 2e.
+        % REVTeX is well-suited for preparing manuscripts for submission to APS journals.
+
+
+\usepackage{chapterbib}    % allows a bibliography for each chapter (each labguide has it's own)
+\usepackage{color}         % produces boxes or entire pages with colored backgrounds
+\usepackage{graphics}      % standard graphics specifications
+\usepackage[pdftex]{graphicx}      % alternative graphics specifications
+\usepackage{epsf}          % old package handles encapsulated post script issues
+\usepackage{bm}            % special 'bold-math' package
+\usepackage{verbatim}			% for comment environment
+\usepackage[colorlinks=true]{hyperref}  % this package should be added after all others
+                                        % use as follows: \url{https://urldefense.proofpoint.com/v2/url?u=http-3A__web.mit.edu_8.13&d=DwICAg&c=sJ6xIWYx-zLMB3EPkvcnVg&r=D88uS55Tats-jlFQAC1XryFUYq8B7Lk3StFbXzgsiB4&m=Vjrc9Wj5n5rkIDMPJ5VsRj2GyXC3yXmN_zDHey6dVio&s=_byqsJfgO464rVIugNWFPmbBeIYfNiJcGS1fgIwc0m4&e= }
+
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+% Graph stuff
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+\usepackage{shellesc}
+\usetikzlibrary{external}
+\tikzexternalize
+
+% Define colours
+\definecolor{darkgreen}{HTML}{228833}
+
+\usepackage[english]{babel}
+\usepackage[autostyle, english=american]{csquotes}
+\MakeOuterQuote{"}
+
+
+\begin{document}
+\title{Title here}
+\author{Tyler Tian}
+\date{\today}
+
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Method}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+
+\section{Source Code}
+
+A comprehensive list of all source code, as well as the \LaTeX{} source for this report, can be found on GitHub at
+\url{https://github.com/tylertian123/phys180_lab/tree/lab3/}.
+\label{appendix:code}
+
+\end{document}

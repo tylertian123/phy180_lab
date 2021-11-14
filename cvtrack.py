@@ -5,7 +5,7 @@ from typing import Tuple
 HSV = Tuple[int, int, int]
 
 BOB_THRESH = ((170, 75, 80), (10, 255, 255))
-PIVOT_THRESH = ((37, 50, 80), (60, 255, 255))
+PIVOT_THRESH = ((37, 50, 80), (50, 255, 255))
 
 
 def generate_thresh(low: HSV, high: HSV) -> Tuple[Tuple[HSV, HSV], Tuple[HSV, HSV]]:
