@@ -1,6 +1,6 @@
 import cv2
+import numpy as np
 from typing import Tuple
-
 
 HSV = Tuple[int, int, int]
 
@@ -28,6 +28,28 @@ def center(img):
     return x, y
 
 
+def largest_blob(img: np.ndarray, binary: np.ndarray, raise_on_fail: bool = False) -> Tuple[int, int]:
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        if raise_on_fail:
+            cv2.imwrite("failure_img.png", img)
+            cv2.imwrite("failure_binary.png", binary)
+            raise ValueError("ERROR: Object not found! Failure images written.")
+        else:
+            return (None, None)
+    else:
+        try:
+            largest = max(contours, key=cv2.contourArea)
+            return center(largest)
+        except ZeroDivisionError as e:
+            if raise_on_fail:
+                cv2.imwrite("failure_img.png", img)
+                cv2.imwrite("failure_binary.png", binary)
+                raise ValueError("ERROR: Object not found! Failure images written.")
+            else:
+                return (None, None)
+
+
 def process_img(img, fx=None, fy=None, bob_thresh=BOB_THRESH, pivot_thresh=PIVOT_THRESH, raise_on_fail=True):
     if fx is not None or fy is not None:
         img = cv2.resize(img, None, fx=fx, fy=fy)
@@ -35,36 +57,9 @@ def process_img(img, fx=None, fy=None, bob_thresh=BOB_THRESH, pivot_thresh=PIVOT
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     binary = thresh_img(hsv, generate_thresh(*bob_thresh))
 
-    # Get largest contour
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        if raise_on_fail:
-            cv2.imwrite("failure_img.png", img)
-            cv2.imwrite("failure_binary.png", binary)
-            raise ValueError("ERROR: Bob not found in image! Failure images written.")
-        else:
-            x = y = None
-    else:
-        try:
-            largest = max(contours, key=cv2.contourArea)
-            x, y = center(largest)
-        except ZeroDivisionError as e:
-            if raise_on_fail:
-                cv2.imwrite("failure_img.png", img)
-                cv2.imwrite("failure_binary.png", binary)
-                raise ValueError("ERROR: Bob not found in image! Failure images written.")
-            else:
-                x = y = None
+    x, y = largest_blob(img, binary, raise_on_fail)
 
     green_binary = thresh_img(hsv, generate_thresh(*pivot_thresh))
-    try:
-        pivot_x, pivot_y = center(green_binary)
-    except ZeroDivisionError as e:
-        if raise_on_fail:
-            cv2.imwrite("failure_img.png", img)
-            cv2.imwrite("failure_pivot_binary.png", green_binary)
-            raise ValueError("ERROR: Pivot not found in image! Failure images written.") from e
-        else:
-            pivot_x = pivot_y = None
+    pivot_x, pivot_y = largest_blob(img, green_binary, raise_on_fail)
 
     return ((x, y), (pivot_x, pivot_y)), (binary, green_binary)

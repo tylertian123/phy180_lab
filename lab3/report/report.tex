@@ -32,6 +32,7 @@
 \usepackage{tikz}
 \usepackage{multirow}
 \usepackage{xcolor}
+\usepackage{listings}
 
 % Graph stuff
 \usepackage[utf8]{inputenc}
@@ -104,6 +105,7 @@ against the background to enable precise vision tracking. The cup is loaded with
 have known masses.
 
 \subsection{Pendulum Tracking}
+\label{sec:tracking}
 
 \begin{figure}[htb]
     \includegraphics[width=\linewidth]{cv_track.png}
@@ -145,7 +147,8 @@ The \(Q\) factor is obtained from the angle-time data using two independent meth
         A Python program (see Appendix \ref{appendix:code}) is used to count these oscillations. Half-oscillations are
         counted as the pendulum swings from a positive peak to a negative peak. For example, if the pendulum starts on
         the right, but first reaches the target amplitude when it is swinging to the left, then a half-oscillation will
-        be counted for the last cycle.
+        be counted for the last cycle. \(\frac{Q}{3}\) is measured for this lab because not enough oscillations were
+        recorded to measure for \(\frac{Q}{2}\) or \(Q\) directly.
 \end{enumerate}
 
 \subsection{Lab 2: Relationship Between Period and Amplitude}
@@ -218,6 +221,202 @@ To determine the bob's mass, the cup's mass is measured on a digital scale. Due 
 high-precision scales are often unavailable, so the mass of the coins inside is calculated using masses found on the
 \href{https://www.mint.ca/store/mint/learn/canadian-circulation-1100028}{Royal Canadian Mint website}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Lab 1 Results and Analysis}
+
+\subsection{Uncertainties}
+
+There are two sources of measurement uncertainty during the data collection process shared by both methods:
+\begin{enumerate}
+    \item 
+        \textbf{Time measurement uncertainty from the camera's frame rate and shutter speed.} Because the camera only
+        captures a set number of frames per second, this creates a small uncertainty about the exact time that data
+        points occurred. An upper bound for this uncertainty can be obtained by taking the time between two frames and
+        dividing by 2. For a 60fps video, this results in an uncertainty of \(\pm 0.008\si{s}\).
+    \item
+        \textbf{Angle measurement uncertainty from motion blur and imperfect tracking.} Motion blur caused by a
+        fast-moving bob can make the angle hard to measure, and imperfect computer vision tracking of the bob and
+        pivot may also result in an incorrect angle. To estimate an upper bound of this uncertainty, a frame is taken
+        from when the pendulum has its maximum velocity to maximize motion blur. Two lines are drawn representing the
+        worst possible cases for tracking (Figure \ref{fig:angle_uncert}), and the angle between them is taken. The
+        result is a range of about \(5\degree\), or an uncertainty of \(\pm 3\degree\)/\(\pm 0.05\si{rad}\).
+        
+        (Note: Further analysis of the behaviour of the tracking program shows this to be an overly conservative
+        estimate, since the averaging of the pixel coordinates as described in Section \ref{sec:tracking} produces the
+        centre of the bob reliably even when there is motion blur. Thus, while this uncertainty is shown in the later
+        graphs, it is not used in the final analysis.)
+\end{enumerate}
+\begin{figure}[htb]
+    \includegraphics[width=0.3\linewidth]{uncert1.png}
+    \caption{Worst-case scenarios for angle uncertainty. Blue lines are drawn to indicate the greatest and least
+        possible angle. Note that this is a very conservative estimate.}
+    \label{fig:angle_uncert}
+\end{figure}
+
+These uncertainties are shown in the graphs in Figure \ref{fig:lab1_fitzoom}. They are very small when
+compared to the uncertainties later in the experiment, and so they will be ignored as only the largest uncertainty is
+considered for this lab.
+
+There are also other sources of measurement uncertainty that are much harder to quantify, such as perspective
+distortion and camera tilt. These uncertainties are assumed to be smaller and random, and thus incorporated in other
+sources.
+
+Specifically for method 1 (curve fitting), the least-squares fit generates a covariance matrix, which contains the
+standard deviations of each fit parameters. These standard deviations are used as the uncertainties for \(\tau\) and
+\(T\), and propagated to \(Q\) by taking the largest relative uncertainty.
+
+Specifically for method 2 (oscillation counting), since the number of oscillations has a resolution of 0.5, when
+multiplied by 3 to find \(Q\), this represents an uncertainty of \(\pm 1.5\).
+
+For both methods, 7 trials were conducted, and the uncertainty of the mean of these trials is used as another source of
+uncertainty.
+
+\subsection{Results from Curve Fitting}
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \begin{tikzpicture}
+            \begin{axis} [
+                title=Best Fit Curve,
+                xlabel=Time (s),
+                ylabel=Angle (rad),
+                width=\textwidth,
+                height=0.3\textwidth,
+                xmin=-3,
+                xmax=120,
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+                clip marker paths=true,
+                legend entries={Collected Data, Best Fit Curve}
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                ] table [
+                    x index=0,
+                    y index=1,
+                ] {lab1_data.txt};
+                \addplot [
+                    thick,
+                    red,
+                    domain=0:117,
+                    samples=2000,
+                ] {0.6057992432358721 * e ^ (-x / 80.4722570265344) * cos(deg(2 * pi * x / 1.6499108861456369 - 0.6356025015941729))};
+            \end{axis}
+        \end{tikzpicture}
+        \begin{tikzpicture}
+            \begin{axis} [
+                title=Fit Residuals,
+                xlabel=Time (s),
+                ylabel=Angle (rad),
+                width=\textwidth,
+                height=0.3\textwidth,
+                xmin=-3,
+                xmax=120,
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt
+                ] table [
+                    x index=0,
+                    y index=2,
+                ] {lab1_data.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Result of fitting Equation \ref{eqn:model} to one of the trials. For this particular fit, \(A = 0.606\),
+            \(\tau = 80.5\), \(T = 1.65\), \(\phi = -0.636\). Uncertainty bars are omitted to improve readability.}
+        \label{fig:lab1_fit}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \begin{tikzpicture}
+            \begin{axis} [
+                title=Best Fit Curve,
+                xlabel=Time (s),
+                ylabel=Angle (rad),
+                width=\textwidth,
+                height=0.3\textwidth,
+                xmin=-0.5,
+                xmax=10.5,
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+                clip marker paths=true,
+                legend entries={Collected Data, Best Fit Curve}
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    restrict expr to domain={x}{0:10},
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                        x fixed=0.008,
+                        y fixed=0.05,
+                ] table [
+                    x index=0,
+                    y index=1,
+                ] {lab1_data.txt};
+                \addplot [
+                    thick,
+                    red,
+                    domain=0:10,
+                    samples=200,
+                ] {0.6057992432358721 * e ^ (-x / 80.4722570265344) * cos(deg(2 * pi * x / 1.6499108861456369 - 0.6356025015941729))};
+            \end{axis}
+        \end{tikzpicture}
+        \begin{tikzpicture}
+            \begin{axis} [
+                title=Fit Residuals,
+                xlabel=Time (s),
+                ylabel=Angle (rad),
+                width=\textwidth,
+                height=0.3\textwidth,
+                xmin=-0.5,
+                xmax=10.5,
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    restrict expr to domain={x}{0:10},
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                        x fixed=0.008,
+                        y fixed=0.05,
+                ] table [
+                    x index=0,
+                    y index=2,
+                ] {lab1_data.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Zoomed-in view of the first 15 seconds of the data, showing the uncertainties. Note the significant
+            deviation of the best-fit curve from the actual data.}
+        \label{fig:lab1_fitzoom}
+    \end{subfigure}
+    \caption{Fitting Equation \ref{eqn:model} to data from one of the trials.}
+    \label{fig:lab1_graph}
+\end{figure*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Lab 2 Results and Analysis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Lab 3 Results and Analysis}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
