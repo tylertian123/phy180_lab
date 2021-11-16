@@ -68,8 +68,14 @@ FIT_FUNCS = [fit0, fit1, fit2, fit3, fit4, fit5, fit6]
 PARAM_NAMES = ["t0", "b", "c", "d", "e", "f", "g"]
 
 
-def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep: str, save_residuals: str):
+def main(data_in: TextIO, degree: int, guess_period: float, save_graph: str, sep: str, save_residuals: str, limit_angles: float):
     x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True, sep=sep)
+    if limit_angles:
+        data_range = np.where(np.abs(x_data) <= limit_angles)
+        x_data = x_data[data_range]
+        y_data = y_data[data_range]
+        x_uncert = x_uncert[data_range]
+        y_uncert = y_uncert[data_range]
     # Create initial guesses
     # t0 varies but the others should all be roughly 0
     guess = [guess_period] + [0] * degree
@@ -134,4 +140,5 @@ if __name__ == "__main__":
     parser.add_argument("--save-graph", type=str, default=None, help="Save the graph to a TeX file. Requires tikzplotlib.")
     parser.add_argument("--save-residuals", type=str, default=None, help="Save the fit residuals to a txt file.")
     parser.add_argument("--sep", "-s", type=str, default=None, help="Separator between 2 data values in the input file. Default is any whitespace, but can be set to any string, e.g. set this to a comma if your data is a CSV.")
+    parser.add_argument("--limit-angles", type=float, default=None, help="Cap the maximum angle.")
     main(**vars(parser.parse_args()))

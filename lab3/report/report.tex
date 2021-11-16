@@ -33,7 +33,6 @@
 \usepackage{tikz}
 \usepackage{multirow}
 \usepackage{xcolor}
-\usepackage{listings}
 
 % Graph stuff
 \usepackage[utf8]{inputenc}
@@ -227,6 +226,7 @@ high-precision scales are often unavailable, so the mass of the coins inside is 
 \section{Lab 1 Results and Analysis}
 
 \subsection{Uncertainties}
+\label{sec:lab1_uncert}
 
 There are two sources of measurement uncertainty during the data collection process shared by both methods:
 \begin{enumerate}
@@ -431,7 +431,7 @@ Figure \ref{fig:lab1_graph} shows the result of fitting Equation \ref{eqn:model}
         \multicolumn{3}{l}{Standard Deviation} & 9.24 \\
         \multicolumn{3}{l}{Uncertainty of the Mean} & 3.49
     \end{tabular}
-    \caption{Raw data from curve fitting; values are \textbf{unrounded}.}
+    \caption{Raw data from curve fitting; values are unrounded.}
     \label{table:lab1_fit}
 \end{table}
 
@@ -459,7 +459,7 @@ the mean. \textbf{The final value as determined by this method is \(Q = 142 \pm 
         \multicolumn{3}{l}{Standard Deviation} & 5.11 \\
         \multicolumn{3}{l}{Uncertainty of the Mean} & 1.93
     \end{tabular}
-    \caption{Raw data from oscillation counting; values are \textbf{unrounded}.}
+    \caption{Raw data from oscillation counting; values are unrounded.}
     \label{table:lab1_osc}
 \end{table}
 
@@ -487,7 +487,7 @@ significantly different mean \(Q\) value.
         \multicolumn{3}{l}{Standard Deviation} & 6.72 \\
         \multicolumn{3}{l}{Uncertainty of the Mean} & 2.54
     \end{tabular}
-    \caption{Data obtained from measuring \(\frac{Q}{4}\) instead; values are \textbf{unrounded}. Note how the mean
+    \caption{Data obtained from measuring \(\frac{Q}{4}\) instead; values are unrounded. Note how the mean
         \(Q\) value deviates significantly from the one obtained in Table \ref{table:lab1_osc}.}
     \label{table:lab1_osc4}
 \end{table}
@@ -501,6 +501,7 @@ decrease. This is not in agreement with the model since according to Equations \
 \label{sec:lab1_analysis}
 
 \subsubsection{\texorpdfstring{\(Q\)}{Q} Factor}
+\label{sec:lab1_qfactor}
 
 The \(Q\) value obtained by oscillation counting is within 1.5 times the uncertainty of the \(Q\) value obtained by
 curve fitting. If values follow a normal distribution, there is a 13.4\% chance for values to be more than 1.5 times the
@@ -622,6 +623,376 @@ detail in the following Labs.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Lab 2 Results and Analysis}
+
+\subsection{Uncertainties}
+
+The sources of measurement uncertainty are the following:
+\begin{enumerate}
+    \item
+        \textbf{Time (period) uncertainty from the camera/sampling speed:} A set number of data points is collected per
+        second, which means the true peak of an oscillation could lie between two data points. When this happens, the
+        precise location of the peak cannot be determined, creating an uncertainty. An upper bound for this uncertainty
+        can be obtained by taking the time between data points dividing by 2. At 30 data points per second, this results
+        in an uncertainty of \(\pm 0.02\si{s}\).
+    \item
+        \textbf{Period uncertainty from noise in the data and inaccuracies in peak finding:} Due to noise in the data,
+        sometimes the true peak location is not apparent, with multiple locations looking like potential peaks. The code
+        attempts to correct this by taking the mean of all peak candidates. The uncertainty of the mean
+        (\(\frac{\sigma}{\sqrt{N}}\)) of the peak candidates is used as the uncertainty, which is computed individually
+        for each data point.
+    \item
+        \textbf{Amplitude uncertainty caused by the previous two uncertainties:} Since the true peak may lie between two data
+        points (as per \textcircled{1}) and is influenced by noise (as per \textcircled{2}), this creates an
+        uncertainty regarding the amplitude of the peak. As the exact value of this uncertainty is hard to find, it is
+        assumed to be the same in percentage as the larger of \textcircled{1} and \textcircled{2}.
+    \item
+        \textbf{Amplitude uncertainty caused by the decay of the pendulum over one oscillation:} The pendulum's
+        amplitude decays as it swings, creating an uncertainty. By substituting \(t = T\) into the pendulum equation, we
+        obtain an exponential term of \(e^{-\frac{T}{t}} = e^{-\frac{\pi}{Q}}\). In other words, the amplitude decays by
+        a factor of \(e^{-\frac{\pi}{Q}}\) per oscillation. The relative change in amplitude is then
+        \(1 - e^{-\frac{\pi}{Q}}\); by substituting in the \(Q\) value obtained in Section \ref{sec:lab1_qfactor}, the
+        amount of decay is found to be \(2.19\%\), so the uncertainty is \(\pm 2\%\).
+\end{enumerate}
+
+Plotting the data points obtained from one trial with the uncertainties yields Figure \ref{fig:lab2_data1}.
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{axis}[
+            title=Period vs. Amplitude,
+            xlabel=Amplitude (rad),
+            ylabel=Period (s),
+            xmin=-2,
+            xmax=2,
+        ]
+            \addplot+[
+                only marks,
+                mark size=1pt,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3,
+            ] {lab2_data1.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Data points collected from one trial, plotted with uncertainty bars.}
+    \label{fig:lab2_data1}
+\end{figure}
+
+Additionally, just like in Section \ref{sec:lab1_uncert}, the least-squares fit also produces standard deviations that
+can be used as uncertainties.
+
+\subsection{Results}
+
+Data points collected from all 5 trials are combined for the fit.
+Table \ref{table:lab2_fit} shows the optimal parameters resulting from fitting power series of various degrees to the
+data. Note that the parameter and uncertainty values in Table \ref{table:lab2_fit} are unrounded to allow for later
+analysis; refer to later sections for properly rounded values.
+
+The uncertainties in Table \ref{table:lab2_fit} take into account both the uncertainties of the fit and the measurement
+uncertainties in the period and amplitude data that carries through, by taking the maximum of the two. The maximum
+relative uncertainty for any data point was determined to be 2.95\%.
+
+\begin{table}[h]
+    \begin{tabular}{c|c|r|r}
+        Degree & Param. & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c}{Max Uncertainty} \\
+        \hline
+        0                  & $T_0$ & 1.662 & \pm 0.0490 \\
+        \hline
+        \multirow{2}{*}{1} & $T_0$ & 1.662 & \pm 0.0490 \\
+                           & $B$ & -0.00298 & \pm 0.00283 \\
+        \hline
+        \multirow{3}{*}{2} & $T_0$ & 1.633 & \pm 0.0481 \\
+                           & $B$ & 0.00257 & \pm 0.00129 \\
+                           & $C$ & 0.1109 & \pm 0.00327 \\
+        \hline
+        \multirow{4}{*}{3} & $T_0$ & 1.633 & \pm 0.0481 \\
+                           & $B$ & 0.00323 & \pm 0.00201 \\
+                           & $C$ & 0.1108 & \pm 0.00326 \\
+                           & $D$ & -0.000788 & \pm 0.00190 \\
+        \hline
+        \multirow{5}{*}{4} & $T_0$ & 1.634 & \pm 0.0481 \\
+                           & $B$ & 0.00283 & \pm 0.00202 \\
+                           & $C$ & 0.1041 & \pm 0.00449 \\
+                           & $D$ & -0.000177 & \pm 0.00194 \\
+                           & $E$ & 0.00431 & \pm 0.00270 \\
+    \end{tabular}
+    \caption{Optimal parameters from the fit for various degrees. Note the values and uncertainties are unrounded.}
+    \label{table:lab2_fit}
+\end{table}
+
+Graphs of the fit and residuals are shown for degrees 0 to 2 in Figures \ref{fig:lab2_fit} to \ref{fig:lab2_residuals2}.
+Uncertainty bars are omitted for Figure \ref{fig:lab2_fit} to keep the graph readable, since there are too many data
+points.
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Period vs. Amplitude,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                xmin=-1.8,
+                xmax=1.8,
+                xtick distance=0.3,
+                legend entries={Collected Data, Degree 0 Fit, Degree 1 Fit, Degree 2 Fit},
+                legend style={
+                    at={(0.5, 0.98)},
+                    anchor=north
+                },
+                width=\textwidth,
+                height=0.5\textwidth,
+            ]
+                \addplot+[
+                    black,
+                    mark options={fill=black},
+                    only marks,
+                    mark size=1pt,
+                ] table [x index=0, y index=1] {lab2_fit_data.txt};
+                \addplot[
+                    blue,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=3,
+                ] {1.662};
+                \addplot[
+                    red!75!white,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=3,
+                ] {1.662 - 0.00298*x};
+                \addplot[
+                    darkgreen,
+                    very thick,
+                    domain=-1.6:1.6,
+                    samples=200,
+                ] {1.633 + 0.00257*x + 0.1109*x^2};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Result of fitting a 0, 1, and 2 degree power series to the data. Error bars are omitted for readability.}
+        \label{fig:lab2_fit}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Residuals for Degree 0 Fit,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major}
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                ] table [
+                    x index=0,
+                    y index=1,
+                    x error index=2,
+                    y error index=3,
+                ] {residuals_deg0.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Residuals from fitting the data to \(T(\theta) = T_0\).}
+        \label{fig:lab2_residuals0}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                title=Residuals for Degree 2 Fit,
+                xlabel=Amplitude (rad),
+                ylabel=Period (s),
+                extra y ticks={0},
+                extra y tick labels={},
+                extra y tick style={grid=major},
+                yticklabel style={
+                    /pgf/number format/precision=3,
+                    /pgf/number format/fixed
+                }
+            ]
+                \addplot+[
+                    only marks,
+                    mark size=1pt,
+                    error bars/.cd,
+                        x dir=both,
+                        y dir=both,
+                        x explicit,
+                        y explicit,
+                ] table [
+                    x index=0,
+                    y index=1,
+                    x error index=2,
+                    y error index=3,
+                ] {residuals_deg2.txt};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Residuals from fitting the data to \(T(\theta) = T_0 + B\theta + C\theta^2\).}
+        \label{fig:lab2_residuals2}
+    \end{subfigure}
+    \caption{Fitting power series of various degrees to the period-amplitude data.}
+    \label{fig:lab2_graph}
+\end{figure*}
+
+\subsection{Discussion and Analysis}
+
+\subsubsection{Asymmetry}
+
+Asymmetry in the pendulum is indicated by a nonzero coefficient on the odd-powered terms in the series (\(B, D, \cdots\)).
+This is because \((-\theta)^n = \theta^n\) for even \(n\), i.e. all the even terms behave identically regardless of the
+sign of the angle. On the other hand, for odd \(n\), \((-\theta)^n = -\theta^n \neq \theta^n\), which means these terms behave
+differently depending on the sign of \(\theta\). Thus a nonzero coefficient on the odd terms would indicate different
+behaviour depending on the side that the bob is released on.
+
+From Table \ref{table:lab2_fit}, for all the cases where \(B\) is a parameter, its value never exceeds more than 2 times its
+uncertainty. Furthermore, for most of the fits, \(B\) is about or less than 1.5 times its uncertainty, therefore
+\(B\) is consistent with zero. Additionally, for all the cases where \(D\) is a parameter, its value is always much less
+than its uncertainty, so \(D\) is experimentally zero. As both odd terms are consistent with zero, it can be
+concluded that \textbf{there is no asymmetry in the pendulum}.
+
+\subsubsection{Relationship Between Period and Amplitude}
+
+From simply observing Figure \ref{fig:lab2_fit}, it is clear that the data forms a distinct pattern that is not
+well-approximated by a constant or linear model of \(T(\theta)\). Indeed, the value of \(C\), the coefficient on the
+quadratic term, is always much larger than its uncertainty (always more than \(20 \times\)).
+
+By examining the residuals of the degree 0 fit in Figure \ref{fig:lab2_residuals0}, it is clear that \(T(\theta) = T_0\)
+is not a correct model for the data, as there is a clear parabolic pattern in the residuals, with some points having a
+residual more than 5 times their uncertainty. On the other hand, the residuals of the degree 2 fit in Figure
+\ref{fig:lab2_residuals2} exhibit no clear pattern, especially when \(\theta\) is large.
+
+Note there appears to be a pattern resembling a downward parabola in Figure \ref{fig:lab2_residuals2} when \(\theta\) is
+small. This can be attributed to the discretization of time due to the data collection method. Because angle data is
+taken 30 times per second, the period has a resolution of \(1/30\si{s}\) without averaging. This is evident in Figure
+\ref{fig:lab2_fit} as most data points seem to lie on discrete horizontal lines. Despite the pattern, the residual
+points are evenly distributed above and below the zero line, indicating a good fit.
+
+Furthermore, the higher-degree terms \(D\) and \(E\) are both smaller than 2 times their uncertainties, so they are
+consistent with zero. This suggests that even for higher degrees of the fit, the terms with degree
+higher than 2 should all be consistent with zero. Additionally, as \(B\) is shown to be consistent with zero in the
+previous subsection, it can be concluded that the actual \(T(\theta)\) has a form of \(T(\theta) = T_0 + C\theta^2\),
+i.e. \textbf{there exists a quadratic relationship between period and amplitude}.
+
+Rounding the parameters and uncertainties gives the final equation
+\begin{equation}
+    T(\theta) = (1.63\si{s} \pm 0.05\si{s}) + (0.111\si{s} \pm 0.003\si{s})\theta^2
+\end{equation}
+
+\subsection{Valid Range of Constant Period Approximation}
+
+Since the relationship between period and amplitude is actually quadratic in nature, the approximation that
+\(T(\theta) = T_0\) (i.e. the period is constant) is only valid for small angles where \(\theta^2 \approx 0\). Since
+Lab 3 assumes the period is constant with respect to amplitude, the range of angles for which this approximation is
+valid must be determined.
+
+One way of determining when this approximation stops being valid is to see when the period as predicted by the constant
+approximation stops being consistent with the period as predicted by the quadratic model. Here "consistent" is defined
+as the values differing by no more than 2 uncertainties. Therefore, the valid range of the approximation is
+\begin{equation}
+    T(\theta) - T_0 \leq 2\epsilon
+\end{equation}
+where \(T(\theta)\) is the quadratic period prediction, \(T_0\) is the constant period approximation and \(\epsilon\) is
+the period error. As most data points have a period uncertainty of \(\pm 0.02\si{s}\), substituting this into the
+equation creates
+\begin{equation}
+    1.633 + 0.1109\theta^2 - 1.662 \leq 0.04
+\end{equation}
+
+Solving this inequality produces the condition \(-0.79 \leq \theta \leq 0.79\). In other words, with this method,
+the constant period approximation is only valid when the absolute amplitude is no more than \(0.79\si{rad}\) or
+\(45\degree\).
+
+An alternative method is to limit the amplitude range of the data points until the fit produces a value for \(C\) that
+is consistent with 0. By trying various angles with a bisection method, the cutoff that produces \(C\) values consistent
+with zero is found to be approximately \(0.30\si{rad}\) or \(17.2\degree\) (Figure \ref{fig:lab2_smallangle}).
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Period vs. Amplitude (Clipped),
+            xlabel=Amplitude (rad),
+            ylabel=Period (s),
+            legend entries={Collected Data, Degree 2 Fit},
+            legend style={
+                at={(0.5, 0.98)},
+                anchor=north
+            },
+            extra y ticks={1.625}, % Invisible y tick label to align the plots
+            extra y tick labels={\color{white}\(-0.05\)},
+            extra y tick style={opacity=0}
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                restrict expr to domain={x}{-0.30:0.30},
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab2_fit_data.txt};
+            \addplot [
+                red,
+                very thick,
+                domain=-0.31:0.31,
+                samples=100,
+            ] {1.6330720841289668 + 0.0026798919935669034 * x + 0.12181317465798622 * x ^ 2};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis}[
+            title=Fit Residuals,
+            xlabel=Amplitude (rad),
+            ylabel=Period (s),
+            extra y ticks={0},
+            extra y tick labels={},
+            extra y tick style={grid=major},
+            yticklabel style={
+                /pgf/number format/precision=3,
+                /pgf/number format/fixed
+            }
+        ]
+            \addplot+[
+                only marks,
+                mark size=1pt,
+                restrict expr to domain={x}{-0.30:0.30},
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3,
+            ] {residuals_deg2.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Limiting the angle range to \(\pm 0.30\si{rad}\). For this fit, \(T_0 = 1.633\) and \(C = 0.110\). The
+        uncertainty for \(C\) is \(0.0552\).}
+    \label{fig:lab2_smallangle}
+\end{figure}
+
+For all subsequent experiments, release angles are always less than the more conservative of the two estimates
+\(0.30\si{rad}\) to ensure that period variations due to changing amplitude is negligible.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
