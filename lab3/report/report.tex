@@ -26,6 +26,7 @@
                                         % use as follows: \url{https://urldefense.proofpoint.com/v2/url?u=http-3A__web.mit.edu_8.13&d=DwICAg&c=sJ6xIWYx-zLMB3EPkvcnVg&r=D88uS55Tats-jlFQAC1XryFUYq8B7Lk3StFbXzgsiB4&m=Vjrc9Wj5n5rkIDMPJ5VsRj2GyXC3yXmN_zDHey6dVio&s=_byqsJfgO464rVIugNWFPmbBeIYfNiJcGS1fgIwc0m4&e= }
 
 \usepackage{subcaption}
+\usepackage{float}
 \usepackage{siunitx}
 \usepackage{textcomp}
 \usepackage{gensymb}
@@ -266,8 +267,9 @@ Specifically for method 1 (curve fitting), the least-squares fit generates a cov
 standard deviations of each fit parameters. These standard deviations are used as the uncertainties for \(\tau\) and
 \(T\), and propagated to \(Q\) by taking the largest relative uncertainty.
 
-Specifically for method 2 (oscillation counting), since the number of oscillations has a resolution of 0.5, when
-multiplied by 3 to find \(Q\), this represents an uncertainty of \(\pm 1.5\).
+Specifically for method 2 (oscillation counting), amplitude can only be determined at a positive or negative peak, which
+gives the oscillation count a maximum resolution of 0.5 (Section \ref{sec:lab1_method}). When multiplied by 3 to find
+\(Q\), this represents an uncertainty of \(\pm 1.5\).
 
 For both methods, 7 trials were conducted, and the uncertainty of the mean of these trials is used as another source of
 uncertainty.
@@ -283,7 +285,7 @@ uncertainty.
                 xlabel=Time (s),
                 ylabel=Angle (rad),
                 width=\textwidth,
-                height=0.3\textwidth,
+                height=0.2\textheight,
                 xmin=-3,
                 xmax=120,
                 extra y ticks={0},
@@ -313,7 +315,7 @@ uncertainty.
                 xlabel=Time (s),
                 ylabel=Angle (rad),
                 width=\textwidth,
-                height=0.3\textwidth,
+                height=0.2\textheight,
                 xmin=-3,
                 xmax=120,
                 extra y ticks={0},
@@ -340,7 +342,7 @@ uncertainty.
                 xlabel=Time (s),
                 ylabel=Angle (rad),
                 width=\textwidth,
-                height=0.3\textwidth,
+                height=0.2\textheight,
                 xmin=-0.5,
                 xmax=10.5,
                 extra y ticks={0},
@@ -378,7 +380,7 @@ uncertainty.
                 xlabel=Time (s),
                 ylabel=Angle (rad),
                 width=\textwidth,
-                height=0.3\textwidth,
+                height=0.2\textheight,
                 xmin=-0.5,
                 xmax=10.5,
                 extra y ticks={0},
@@ -409,6 +411,213 @@ uncertainty.
     \caption{Fitting Equation \ref{eqn:model} to data from one of the trials.}
     \label{fig:lab1_graph}
 \end{figure*}
+
+Figure \ref{fig:lab1_graph} shows the result of fitting Equation \ref{eqn:model} for one of the trials.
+\(Q\) values computed using this method are shown in Table \ref{table:lab1_fit}.
+
+\begin{table}[h]
+    \begin{tabular}{c|c|c|c}
+        Trial & \(Q\) & Uncertainty & \% Uncertainty \\
+        \hline
+        1   & 153.23    & \(\pm 3.65\) & 2.38 \\
+        2   & 147.89    & \(\pm 3.95\) & 2.67 \\
+        3	& 140.96	& \(\pm 3.53\) & 2.51 \\
+        4	& 151.12	& \(\pm 3.81\) & 2.52 \\
+        5	& 130.24	& \(\pm 3.86\) & 2.96 \\
+        6	& 131.31	& \(\pm 3.76\) & 2.86 \\
+        7	& 138.04	& \(\pm 3.70\) & 2.68 \\
+        \hline
+        \multicolumn{3}{l}{Mean} & 141.83 \\
+        \multicolumn{3}{l}{Standard Deviation} & 9.24 \\
+        \multicolumn{3}{l}{Uncertainty of the Mean} & 3.49
+    \end{tabular}
+    \caption{Raw data from curve fitting; values are \textbf{unrounded}.}
+    \label{table:lab1_fit}
+\end{table}
+
+From Table \ref{table:lab1_fit}, the greatest percentage uncertainty is trial 5 with an uncertainty of 2.96\%. When
+multiplied by the mean, this corresponds to an uncertainty of \(\pm 4.20\), which is greater than the uncertainty of
+the mean. \textbf{The final value as determined by this method is \(Q = 142 \pm 4\).}
+
+\subsection{Results from Oscillation Counting}
+
+\(Q\) values computed using this method are shown in Table \ref{table:lab1_osc}.
+
+\begin{table}[h]
+    \begin{tabular}{c|c|c|c}
+        Trial & \(Q\) & Uncertainty & \% Uncertainty \\
+        \hline
+        1   & 148.5 & \(\pm 1.5\) & 1.01 \\
+        2   & 151.5 & \(\pm 1.5\) & 0.99 \\
+        3	& 148.5 & \(\pm 1.5\) & 1.01 \\
+        4	& 154.5 & \(\pm 1.5\) & 0.97 \\
+        5	& 139.5 & \(\pm 1.5\) & 1.08 \\
+        6	& 142.5 & \(\pm 1.5\) & 1.05 \\
+        7	& 148.5 & \(\pm 1.5\) & 1.01 \\
+        \hline
+        \multicolumn{3}{l}{Mean} & 147.6 \\
+        \multicolumn{3}{l}{Standard Deviation} & 5.11 \\
+        \multicolumn{3}{l}{Uncertainty of the Mean} & 1.93
+    \end{tabular}
+    \caption{Raw data from oscillation counting; values are \textbf{unrounded}.}
+    \label{table:lab1_osc}
+\end{table}
+
+From Table \ref{table:lab1_osc}, the greatest percentage uncertainty is trial 5 with an uncertainty of 1.08\%, which
+corresponds to an uncertainty of \(\pm 1.59\) in \(Q\), less than the uncertainty of the mean. \textbf{The final value
+as determined by this method is \(Q = 148 \pm 2\).}
+
+However, an interesting phenomenon can be observed by varying the fraction of \(Q\) to measure for.
+For example, by measuring for \(\frac{Q}{4}\) instead, the data in Table \ref{table:lab1_osc4} is obtained, which has a
+significantly different mean \(Q\) value.
+
+\begin{table}[h]
+    \begin{tabular}{c|c|c|c}
+        Trial & \(Q\) & Uncertainty & \% Uncertainty \\
+        \hline
+        1   & 126.0 & \(\pm 2\) & 1.59 \\
+        2   & 138.0 & \(\pm 2\) & 1.45 \\
+        3	& 134.0 & \(\pm 2\) & 1.49 \\
+        4	& 144.0 & \(\pm 2\) & 1.39 \\
+        5	& 128.0 & \(\pm 2\) & 1.56 \\
+        6	& 126.0 & \(\pm 2\) & 1.59 \\
+        7	& 134.0 & \(\pm 2\) & 1.49 \\
+        \hline
+        \multicolumn{3}{l}{Mean} & 132.9 \\
+        \multicolumn{3}{l}{Standard Deviation} & 6.72 \\
+        \multicolumn{3}{l}{Uncertainty of the Mean} & 2.54
+    \end{tabular}
+    \caption{Data obtained from measuring \(\frac{Q}{4}\) instead; values are \textbf{unrounded}. Note how the mean
+        \(Q\) value deviates significantly from the one obtained in Table \ref{table:lab1_osc}.}
+    \label{table:lab1_osc4}
+\end{table}
+
+After more trials, it was observed that the value of \(Q\) obtained through counting oscillations is dependent on the
+fraction of \(Q\) that was counted for. Moreover, as the denominator increases, the observed \(Q\) value seems to
+decrease. This is not in agreement with the model since according to Equations \ref{eqn:model} and \ref{eqn:qfactor}
+\(Q\) should be independent of the fraction measured.
+
+\subsection{Discussion and Analysis}
+\label{sec:lab1_analysis}
+
+\subsubsection{\texorpdfstring{\(Q\)}{Q} Factor}
+
+The \(Q\) value obtained by oscillation counting is within 1.5 times the uncertainty of the \(Q\) value obtained by
+curve fitting. If values follow a normal distribution, there is a 13.4\% chance for values to be more than 1.5 times the
+uncertainty away. From this we conclude that \textbf{while there is a discrepancy between the two \(Q\) values, the
+values could be in agreement.}
+
+However, as shown in Table \ref{table:lab1_osc4}, by measuring for \(\frac{Q}{4}\) a \(Q\) value of \(133 \pm 3\) is
+obtained instead. This value is 2.25 times the uncertainty away from the \(Q\) value obtained by curve fitting, and 5
+times the uncertainty away from the \(Q\) value obtained by counting for \(\frac{Q}{3}\), which clearly disagrees with
+either \(Q\) value found above.
+
+Furthermore, as the fraction of \(Q\) measured for gets smaller, the measured \(Q\) value gets even further from the
+values obtained previously. It can be concluded that, at least for this particular pendulum, \textbf{oscillation
+counting is not a reliable way for obtaining \(Q\)}. As a result, the final \(Q\) value is taken to be the one obtained
+through curve fitting (\(Q = 142 \pm 4\)).
+
+\subsubsection{Model Accuracy}
+
+\begin{figure*}[t]
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Best Fit Curve,
+            xlabel=Time (s),
+            ylabel=Angle (rad),
+            width=\textwidth,
+            height=0.2\textheight,
+            xmin=-3,
+            xmax=120,
+            extra y ticks={0},
+            extra y tick labels={},
+            extra y tick style={grid=major},
+            clip marker paths=true,
+            legend entries={Collected Data, Best Fit Curve}
+        ]
+            \addplot+[
+                only marks,
+                mark size=1pt,
+            ] table [
+                x index=0,
+                y index=1,
+            ] {lab1_data2.txt};
+            \addplot [
+                thick,
+                red,
+                domain=0:117,
+                samples=2000,
+            ] {0.663973140409552 * e ^ (-x / 55.2123562331802) * cos(deg(2 * pi * x / 1.656087056926946))};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Fit Residuals,
+            xlabel=Time (s),
+            ylabel=Angle (rad),
+            width=\textwidth,
+            height=0.2\textheight,
+            xmin=-3,
+            xmax=120,
+            extra y ticks={0},
+            extra y tick labels={},
+            extra y tick style={grid=major},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1pt
+            ] table [
+                x index=0,
+                y index=2,
+            ] {lab1_data2.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Result of fitting to the same data but with \(\phi_0 = 0\) (Equation \ref{eqn:model_nophi}). For this
+        particular fit, \(A = 0.664\), \(\tau = 55.2\), \(T = 1.66\). Uncertainty bars are omitted to improve readability.}
+    \label{fig:lab1_fit2}
+\end{figure*}
+
+An inspection of the residuals in Figure \ref{fig:lab1_graph} shows a clear pattern, which would not be present if the fit
+represents the data well. At many points, the residuals reach a value of 0.2, which is over 25\% of the actual
+amplitude of the data, 0.8. The amplitude of the fit also deviates significantly from the actual amplitude of the data
+(0.6 versus 0.8), but adjusting the conditions of the fit does not improve it. The fit also seems to deviate
+significantly from the actual data near the beginning and end of the data set as shown in Figure \ref{fig:lab1_fitzoom}.
+
+The two possible reasons for this happening are either that the fit was not done well, or the model does not reflect the
+real data well. The data is inconclusive for determining which is the dominant effect for sure, but there is evidence to
+suggest that the model may not be entirely accurate.
+
+Since time \(t = 0\) is taken to be when the pendulum is first released, the theoretical value of \(\phi_0\) should
+always be 0, so the model is reduced to
+\begin{equation}
+    \theta(t) = \theta_0 e^{-\frac{t}{\tau}}\cos\left(2\pi\frac{t}{T}\right)
+    \label{eqn:model_nophi}
+\end{equation}
+
+However, all the trials produce nonzero values for \(\phi_0\). The result of fitting to the same data but with
+\(\phi_0\) removed is shown in Figure \ref{fig:lab1_fit2}. Compared to Figure \ref{fig:lab1_fit}, this time the fit is
+much worse, with the fit curve deviating significantly from the data in both magnitude and phase near the end, where
+visually the fit seems to be off by more than \(\frac{1}{4}\) of a period. The residuals seem to keep on increasing at
+the end and are much larger than the uncertainties, which shows that \textbf{Equation \ref{eqn:model} is not an
+accurate model of this pendulum for large values of \(t\)}.
+
+This might be because Equation \ref{eqn:model} is derived with the simplifying assumption of \(\sin \theta \approx \theta\)
+for small angles, which produces a restoring force that is proportional to angle. Since \(\theta > \sin \theta\) for
+\(\theta \neq 0\), the restoring force predicted by the model is always larger than the real force, producing a larger
+acceleration and velocity. Since the damping force due to viscous air friction is proportional to velocity, the larger
+velocity predicted by the model leads to more damping and thus more decay. This is consistent with Figures
+\ref{fig:lab1_fit} and \ref{fig:lab1_fit2}, both of which show that the actual rate of decay is slower than the
+predicted rate of decay.
+
+Another reason for the large residuals could be that the period of this pendulum appears to be non-constant.
+Observing the data more closely shows that the period of the pendulum appears to decrease slightly as time progresses.
+In particular, for the trial in Figure \ref{fig:lab1_graph}, the initial period shortly after release is about
+\(1.67\si{s} \pm 0.01\si{s}\), while the final period near the end of the video is about \(1.64\si{s} \pm 0.01\si{s}\).
+Although the difference is small, it is consistently present throughout multiple trials and is too large to be explained
+by uncertainties. This is consistent with Figures \ref{fig:lab1_fit} and \ref{fig:lab1_fit2}, both of which show that
+the period predicted by Equation \ref{eqn:model} is different from the actual period, since the fit and the actual data
+become out of phase as time goes on. The relationship between period and other parameters is investigated in more
+detail in the following Labs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

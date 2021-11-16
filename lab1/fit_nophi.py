@@ -50,6 +50,8 @@ INIT_GUESS = (0.8, 50, 1.8)
 DRAW_Q_LINE = False
 Q_DIVISOR = 3
 
+EXPORT_DATA = "fit_data.txt"
+
 # Function used to fit
 # First variable is the x-data, and the rest are the parameters we want to determine
 def fit_func(t: float, a: float, tau: float, period: float) -> float:
@@ -170,6 +172,11 @@ def main():
         ax2.set_xlabel("Time (s)")
         ax2.set_ylabel("Fit Residual")
         ax2.set_title("Fit Residuals")
+
+        if EXPORT_DATA is not None:
+            with open(EXPORT_DATA, "w") as f:
+                for x, y, r in zip(x_data, y_data, residuals):
+                    f.write(f"{x} {y} {r}\n")
 
     plt.show()
 
