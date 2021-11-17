@@ -32,13 +32,14 @@ def parse_time(t: str, framerate: int = 30) -> float:
 @click.option("--x-rel-uncert", "--xru", type=float, default=0, help="Relative uncertainty for every x value")
 @click.option("--y-uncert", "--yu", type=float, default=0, help="Absolute uncertainty for every y value")
 @click.option("--y-rel-uncert", "--yru", type=float, default=0, help="Relative uncertainty for every y value")
+@click.option("--period-uncert", "--pu", type=float, default=0, help="Absolute period uncertainty before averaging")
 @click.option("--offset", "-o", type=float, default=0, help="Subtract an offset from all x values")
 @click.option("--negate/--no-negate", "-n/-N", default=False, help="Negate x values")
 @click.option("--plot/--no-plot", default=False, help="Plot extracted angle data")
 @click.option("--peak-option", "-p", multiple=True, type=(str, str), help="Additional kwargs to pass to scipy.signal.find_peaks()")
 def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_threshold: float, x_uncert: float,
-         x_rel_uncert: float, y_uncert: float, y_rel_uncert: float, offset: float, negate: bool, plot: bool,
-         peak_option: List[Tuple[str, str]]) -> None:
+         x_rel_uncert: float, y_uncert: float, y_rel_uncert: float, period_uncert: float, offset: float, negate: bool,
+         plot: bool, peak_option: List[Tuple[str, str]]) -> None:
     """
     Generate period data.
 
@@ -118,10 +119,10 @@ def main(times_in: pathlib.Path, data_out: TextIO, fx: float, fy: float, merge_t
                 sys.exit(1)
             periods = np.fromiter((b - a for a, b in zip(peak_x, itertools.islice(peak_x, 1, None))), dtype=np.float64)
             period = np.mean(periods)
-            period_uncert = np.std(periods) / np.sqrt(len(periods))
+            period_um = np.std(periods) / np.sqrt(len(periods))
             print(f"Averaged {len(peak_x)} peaks for a period of {period}s")
 
-            pu = max(period_uncert, y_uncert, abs(period * max(y_rel_uncert, max(u / t for u, t in zip(peak_uncert, peak_x)))))
+            pu = max(period_um, period_uncert / (len(peak_x) - 1), y_uncert, abs(period * max(y_rel_uncert, max(u / t for u, t in zip(peak_uncert, peak_x)))))
             xu = max(x_uncert, abs(x_rel_uncert * x_val))
             data_out.write(f"{x_val} {period} {xu} {pu}\n")
 

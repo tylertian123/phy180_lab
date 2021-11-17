@@ -33,6 +33,7 @@
 \usepackage{tikz}
 \usepackage{multirow}
 \usepackage{xcolor}
+\usepackage{circledsteps}
 
 % Graph stuff
 \usepackage[utf8]{inputenc}
@@ -51,6 +52,7 @@
 \usepackage[autostyle, english=american]{csquotes}
 \MakeOuterQuote{"}
 
+\renewcommand{\thetable}{\arabic{table}}
 
 \begin{document}
 \title{Title here}
@@ -77,6 +79,16 @@ TODO
 \begin{equation}
     Q = \pi\frac{\tau}{T}
     \label{eqn:qfactor}
+\end{equation}
+
+\begin{equation}
+    T(\theta) = T_0 + B\theta + C\theta^2 + D\theta^3 + \cdots
+    \label{eqn:power_series}
+\end{equation}
+
+\begin{equation}
+    T(L) = k(L_0 + L)^n
+    \label{eqn:period}
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,16 +203,24 @@ reduces the amplitude uncertainty as there is now less decay. Because the \(Q\) 
 \ref{sec:lab1_analysis}) is reasonably but not extremely large, the period is measured directly using the difference in
 time between adjacent peaks, without averaging over multiple oscillations or looking at half an oscillation.
 
-\subsection{Lab 3: Relationship Between Period and Length/Mass}
+After the period-amplitude data has been collected, Equation \ref{eqn:power_series} is fit to the data using a Python
+program (Appendix \ref{appendix:code}) using the least-squares method. Since Equation \ref{eqn:power_series} contains an
+infinite number of terms, it cannot be used directly in the fit, so it is truncated to produce 5 polynomials of degrees
+0-4 respectively, and a fit is done separately for each.
 
-For this lab, the video was shot at 30fps and sampled at 30Hz. As determined in Lab 2 (Section \ref{sec:lab2_analysis}),
+\subsection{Lab 3: Relationship Between Period and Length/Mass}
+\label{sec:lab3_method}
+
+For this lab, the video was shot at 30fps and sampled at 30Hz. As determined in Lab 2 (Section \ref{sec:lab2_relationship}),
 the does have an impact on period, but this effect can be ignored for sufficiently small angles. Therefore the release
-angle of the pendulum in this lab is always less than the constraint determined in Section \ref{sec:lab2_validrange}.
+angle of the pendulum in this lab is always less than the constraint determined in Section \ref{sec:lab2_range}.
 As the effect of decaying period is now negligible, multiple (about 10 each) oscillations were measured for every
 length/mass.
 
 The period produced by each length/mass is determined using the same method as outlined in Section
 \ref{sec:lab2_method}, with yet another Python program (see Appendix \ref{appendix:code}).
+
+\subsubsection{Lab 3a: Period vs. Length}
 
 To determine the effective string length, the bob is raised to the top as shown in Figure \ref{fig:raised_bob}, and a
 reading is taken on the measuring tape shown in the left of Figure \ref{fig:swingy} and used as a base value. For
@@ -217,9 +237,17 @@ measuring tape is used. Since the cup is much lighter than the coins inside, the
 centre of mass of the 6 coins inside. The distance between the top of the 3rd coin and the pivot is measured and added
 to each length to determine the final effective length.
 
+Once the data is collected, Equation \ref{eqn:period} is fit to it using a Python program
+(see Appendix \ref{appendix:code}), and the fit parameters produced are compared with their theoretical values
+(discussed in Section \ref{sec:lab3a_results}).
+
+\subsubsection{Lab 3b: Period vs. Mass}
+
 To determine the bob's mass, the cup's mass is measured on a digital scale. Due to the activity being completed at home,
 high-precision scales are often unavailable, so the mass of the coins inside is calculated using masses found on the
 \href{https://www.mint.ca/store/mint/learn/canadian-circulation-1100028}{Royal Canadian Mint website}.
+
+TODO Additional methods here
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -415,7 +443,7 @@ uncertainty.
 Figure \ref{fig:lab1_graph} shows the result of fitting Equation \ref{eqn:model} for one of the trials.
 \(Q\) values computed using this method are shown in Table \ref{table:lab1_fit}.
 
-\begin{table}[h]
+\begin{table}[ht]
     \begin{tabular}{c|c|c|c}
         Trial & \(Q\) & Uncertainty & \% Uncertainty \\
         \hline
@@ -443,7 +471,7 @@ the mean. \textbf{The final value as determined by this method is \(Q = 142 \pm 
 
 \(Q\) values computed using this method are shown in Table \ref{table:lab1_osc}.
 
-\begin{table}[h]
+\begin{table}[ht]
     \begin{tabular}{c|c|c|c}
         Trial & \(Q\) & Uncertainty & \% Uncertainty \\
         \hline
@@ -471,7 +499,7 @@ However, an interesting phenomenon can be observed by varying the fraction of \(
 For example, by measuring for \(\frac{Q}{4}\) instead, the data in Table \ref{table:lab1_osc4} is obtained, which has a
 significantly different mean \(Q\) value.
 
-\begin{table}[h]
+\begin{table}[ht]
     \begin{tabular}{c|c|c|c}
         Trial & \(Q\) & Uncertainty & \% Uncertainty \\
         \hline
@@ -625,6 +653,7 @@ detail in the following Labs.
 \section{Lab 2 Results and Analysis}
 
 \subsection{Uncertainties}
+\label{sec:lab2_uncertainties}
 
 The sources of measurement uncertainty are the following:
 \begin{enumerate}
@@ -642,9 +671,9 @@ The sources of measurement uncertainty are the following:
         for each data point.
     \item
         \textbf{Amplitude uncertainty caused by the previous two uncertainties:} Since the true peak may lie between two data
-        points (as per \textcircled{1}) and is influenced by noise (as per \textcircled{2}), this creates an
+        points (as per \Circled{1}) and is influenced by noise (as per \Circled{2}), this creates an
         uncertainty regarding the amplitude of the peak. As the exact value of this uncertainty is hard to find, it is
-        assumed to be the same in percentage as the larger of \textcircled{1} and \textcircled{2}.
+        assumed to be the same in percentage as the larger of \Circled{1} and \Circled{2}.
     \item
         \textbf{Amplitude uncertainty caused by the decay of the pendulum over one oscillation:} The pendulum's
         amplitude decays as it swings, creating an uncertainty. By substituting \(t = T\) into the pendulum equation, we
@@ -699,7 +728,7 @@ The uncertainties in Table \ref{table:lab2_fit} take into account both the uncer
 uncertainties in the period and amplitude data that carries through, by taking the maximum of the two. The maximum
 relative uncertainty for any data point was determined to be 2.95\%.
 
-\begin{table}[h]
+\begin{table}[ht]
     \begin{tabular}{c|c|r|r}
         Degree & Param. & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c}{Max Uncertainty} \\
         \hline
@@ -779,6 +808,7 @@ points.
         \caption{Result of fitting a 0, 1, and 2 degree power series to the data. Error bars are omitted for readability.}
         \label{fig:lab2_fit}
     \end{subfigure}
+    \\
     \begin{subfigure}{0.49\textwidth}
         \begin{tikzpicture}
             \begin{axis}[
@@ -808,6 +838,7 @@ points.
         \caption{Residuals from fitting the data to \(T(\theta) = T_0\).}
         \label{fig:lab2_residuals0}
     \end{subfigure}
+    \hfill
     \begin{subfigure}{0.49\textwidth}
         \begin{tikzpicture}
             \begin{axis}[
@@ -862,6 +893,7 @@ than its uncertainty, so \(D\) is experimentally zero. As both odd terms are con
 concluded that \textbf{there is no asymmetry in the pendulum}.
 
 \subsubsection{Relationship Between Period and Amplitude}
+\label{sec:lab2_relationship}
 
 From simply observing Figure \ref{fig:lab2_fit}, it is clear that the data forms a distinct pattern that is not
 well-approximated by a constant or linear model of \(T(\theta)\). Indeed, the value of \(C\), the coefficient on the
@@ -889,33 +921,8 @@ Rounding the parameters and uncertainties gives the final equation
     T(\theta) = (1.63\si{s} \pm 0.05\si{s}) + (0.111\si{s} \pm 0.003\si{s})\theta^2
 \end{equation}
 
-\subsection{Valid Range of Constant Period Approximation}
-
-Since the relationship between period and amplitude is actually quadratic in nature, the approximation that
-\(T(\theta) = T_0\) (i.e. the period is constant) is only valid for small angles where \(\theta^2 \approx 0\). Since
-Lab 3 assumes the period is constant with respect to amplitude, the range of angles for which this approximation is
-valid must be determined.
-
-One way of determining when this approximation stops being valid is to see when the period as predicted by the constant
-approximation stops being consistent with the period as predicted by the quadratic model. Here "consistent" is defined
-as the values differing by no more than 2 uncertainties. Therefore, the valid range of the approximation is
-\begin{equation}
-    T(\theta) - T_0 \leq 2\epsilon
-\end{equation}
-where \(T(\theta)\) is the quadratic period prediction, \(T_0\) is the constant period approximation and \(\epsilon\) is
-the period error. As most data points have a period uncertainty of \(\pm 0.02\si{s}\), substituting this into the
-equation creates
-\begin{equation}
-    1.633 + 0.1109\theta^2 - 1.662 \leq 0.04
-\end{equation}
-
-Solving this inequality produces the condition \(-0.79 \leq \theta \leq 0.79\). In other words, with this method,
-the constant period approximation is only valid when the absolute amplitude is no more than \(0.79\si{rad}\) or
-\(45\degree\).
-
-An alternative method is to limit the amplitude range of the data points until the fit produces a value for \(C\) that
-is consistent with 0. By trying various angles with a bisection method, the cutoff that produces \(C\) values consistent
-with zero is found to be approximately \(0.30\si{rad}\) or \(17.2\degree\) (Figure \ref{fig:lab2_smallangle}).
+\subsubsection{Valid Range of Constant Period Approximation}
+\label{sec:lab2_range}
 
 \begin{figure}[htb]
     \begin{tikzpicture}
@@ -988,15 +995,238 @@ with zero is found to be approximately \(0.30\si{rad}\) or \(17.2\degree\) (Figu
     \end{tikzpicture}
     \caption{Limiting the angle range to \(\pm 0.30\si{rad}\). For this fit, \(T_0 = 1.633\) and \(C = 0.110\). The
         uncertainty for \(C\) is \(0.0552\).}
-    \label{fig:lab2_smallangle}
+    \label{fig:lab2_range}
 \end{figure}
 
+Since the relationship between period and amplitude is actually quadratic in nature, the approximation that
+\(T(\theta) = T_0\) (i.e. the period is constant) is only valid for small angles where \(\theta^2 \approx 0\). Since
+Lab 3 assumes the period is constant with respect to amplitude, the range of angles for which this approximation is
+valid must be determined.
+
+One way of determining when this approximation stops being valid is to see when the period as predicted by the constant
+approximation stops being consistent with the period as predicted by the quadratic model. Here "consistent" is defined
+as the values differing by no more than 2 uncertainties. Therefore, the valid range of the approximation is
+\begin{equation}
+    T(\theta) - T_0 \leq 2\epsilon
+\end{equation}
+where \(T(\theta)\) is the quadratic period prediction, \(T_0\) is the constant period approximation and \(\epsilon\) is
+the period error. As most data points have a period uncertainty of \(\pm 0.02\si{s}\), substituting this into the
+equation creates
+\begin{equation}
+    1.633 + 0.1109\theta^2 - 1.662 \leq 0.04
+\end{equation}
+
+Solving this inequality produces the condition \(-0.79 \leq \theta \leq 0.79\). In other words, with this method,
+the constant period approximation is only valid when the absolute amplitude is no more than \(0.79\si{rad}\) or
+\(45\degree\).
+
+An alternative method is to limit the amplitude range of the data points until the fit produces a value for \(C\) that
+is consistent with 0. By trying various angles with a bisection method, the cutoff that produces \(C\) values consistent
+with zero is found to be approximately \(0.30\si{rad}\) or \(17.2\degree\) (Figure \ref{fig:lab2_range}).
+
 For all subsequent experiments, release angles are always less than the more conservative of the two estimates
-\(0.30\si{rad}\) to ensure that period variations due to changing amplitude is negligible.
+(\(0.30\si{rad}\)) to ensure that period variations due to changing amplitude is negligible.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Lab 3 Results and Analysis}
+\section{Lab 3a Results and Analysis}
+
+\subsection{Uncertainties}
+
+The sources of measurement uncertainty are the following:
+\begin{enumerate}
+    \item
+        \textbf{String length uncertainty from reading the measuring tape:} As described in Section \ref{sec:lab3_method},
+        the length of the string is calculated using two components, one of which is obtained by subtracting a measuring
+        tape reading from an offset. The measuring tape has a resolution of \(1\si{mm}\) but due to imperfections in
+        pendulum construction, the tape may not be perfectly aligned with the string, so the uncertainty is estimated to be
+        \(\pm 2\si{mm} = 0.002\si{m}\).
+    \item
+        \textbf{String length uncertainty from determining the centre of mass:} As described in Section
+        \ref{sec:lab3_method}, the centre of mass was estimated visually and its distance measured roughly with a
+        measuring tape, which introduces another uncertainty. Taking into account the size of the cup and volume of the
+        coins inside, this uncertainty is estimated to about \(\pm 5\si{mm} = 0.005\si{m}\). Since it is larger than the
+        uncertainty from \Circled{1}, it is used as the final length uncertainty.
+    \item
+        \textbf{Period uncertainty from the camera's framerate/data collection rate:} Similarly to \Circled{1} in
+        section \ref{sec:lab2_uncertainties}, the data collection rate creates an uncertainty of \(\pm 0.02\si{s}\) on
+        each peak. To reduce this uncertainty as much as possible, multiple peaks were averaged, creating an uncertainty
+        of \(\pm \frac{0.02}{N}\si{s}\) where \(N\) is the number of oscillations averaged, which is calculated
+        individually for each data point. (Unlike in Lab 2, increasing the number of oscillations averaged does not
+        increase uncertainty, since the effect of the decaying amplitude on period is negligible as all trials were done
+        with small angles according to Section \ref{sec:lab2_range}.) Averaging multiple peaks also creates an
+        uncertainty of the mean \(\frac{\sigma}{\sqrt{N}}\), so the final uncertainty is
+        \(\max\left\{\frac{0.02}{N}, \frac{\sigma}{\sqrt{N}}\right\}\).
+\end{enumerate}
+
+Since there is a non-negligible amount of \(x\) (length) uncertainty, the fitting is done with ODR (Orthogonal Distance
+Regression) instead of least squares since ODR is able to handle \(x\) uncertainties. The uncertainties in the data
+points are therefore included in the uncertainties produced by the fitting program.
+
+\subsection{Results}
+\label{sec:lab3a_results}
+
+The results of the fit are shown in Figure \ref{fig:lab3a_fit}. The fit parameters are shown in Table \ref{table:lab3a_fit}.
+
+\begin{table}[ht]
+    \begin{tabular}{c|r|r}
+        Variable & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c}{Uncertainty} \\
+        \hline
+        \(k\) & \(2.018\) & \(\pm 0.00206\) \\
+        \(n\) & \(0.497\) & \(\pm 0.001515\) \\
+        \(L_0\) & \(-0.01273\) & \(\pm 0.001836\) \\
+    \end{tabular}
+    \caption{Parameters produced by curve fitting; values are unrounded.}
+    \label{table:lab3a_fit}
+\end{table}
+
+Figure \ref{fig:lab3a_logfit} plots the data and fit on a log-log plot, with the intercept showing \(k\) and the slope
+showing \(n\).
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Period vs. Length,
+            xlabel=String Length (m),
+            ylabel=Period (s),
+            legend entries={Collected Data, Best Fit Curve},
+            legend style={at={(0.02, 0.98)}, anchor=north west},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3_data.txt};
+            \addplot [
+                red,
+                very thick,
+                domain=0.1105:1.5385,
+                samples=200,
+            ] {2.018099069322445 * (x - 0.01272678366160228) ^ 0.4965279402153859};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis}[
+            title=Fit Residuals,
+            xlabel=String Length (m),
+            ylabel=Period (s),
+            extra y ticks={0},
+            extra y tick labels={},
+            extra y tick style={grid=major},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1pt,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3,
+            ] {lab3_residuals.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Results of the fit. The parameters are \(k = 2.018\), \(n = 0.497\), \(L_0 = -0.0173\).}
+    \label{fig:lab3a_fit}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{loglogaxis} [
+            title=Period vs. Length,
+            xlabel=String Length (m),
+            ylabel=Period (s),
+            legend entries={Collected Data, Best Fit Curve},
+            legend style={at={(0.02, 0.98)}, anchor=north west},
+            extra x ticks={1},
+            extra x tick style={grid=major},
+            extra y ticks={2.018099069322445},
+            extra y tick style={grid=major},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3_data.txt};
+            \addplot [
+                red,
+                very thick,
+                domain=0.1105:1.5385,
+                samples=200,
+            ] {2.018099069322445 * (x - 0.01272678366160228) ^ 0.4965279402153859}
+            coordinate [pos=0.3] (a) coordinate [pos=0.4] (b);
+            \draw (a) -| (b) node [pos=0.75, right] {\(n = 0.497\)};
+        \end{loglogaxis}
+    \end{tikzpicture}
+    \caption{Results of the fit graphed on a log-log plot. The marked intercept shows \(k = 10^{0.3049} = 2.018\).
+        The slope of the graph shows \(n = 0.497\).}
+    \label{fig:lab3a_logfit}
+\end{figure}
+
+\subsection{Discussion and Analysis}
+
+The residuals in Figure \ref{fig:lab3a_fit} shows no clear pattern, indicating an accurate fit.
+
+The period of a linear pendulum, with small amplitudes and negligible damping, is
+\begin{equation}
+    T \approx 2\pi\sqrt{\frac{L}{g}} = 2\frac{\pi}{\sqrt{g}}\sqrt{L} \approx 2.006L^{0.5}
+    \label{eqn:theoretical_period}
+\end{equation}
+
+By comparing Equation \ref{eqn:theoretical_period} with \ref{eqn:period}, the theoretical value for \(k\) is found to be
+\(2.006\), for \(n\), \(0.5\), and for \(L_0\), \(0\).
+
+\begin{table}[ht]
+    \begin{tabular}{c|r|r|r|r}
+        Variable & \multicolumn{1}{c|}{Value} & \multicolumn{1}{c|}{Theoretical} & \multicolumn{1}{c|}{Difference} & \multicolumn{1}{c}{Times Uncertainty} \\
+        \hline
+        \(k\) & \(2.018\) & \(2.006\) & \(0.117\) & \(5.7\) \\
+        \(n\) & \(0.497\) & \(0.5\) & \(0.00347\) & \(2.3\) \\
+        \(L_0\) & \(-0.01273\) & \(0\) & \(0.01273\) & \(6.9\) \\
+    \end{tabular}
+    \caption{The amount that each fit variable deviates from its theoretical value relative to its uncertainty.}
+    \label{table:lab3a_deviations}
+\end{table}
+
+Table \ref{table:lab3a_deviations} shows the amount that each variable deviates from its theoretical value.
+
+All the fit parameters are close to their theoretical values but not consistent with the theoretical values according to
+the uncertainties, which suggests a slight deviation from the model.
+
+The nonzero value of \(L_0\) is likely caused by the effective string length being estimated incorrectly, since the
+location of the centre of gravity of the bob could not be determined precisely.
+
+The values of \(k\) and \(n\) suggests that the actual period is slightly greater than the theoretical period predicted
+by Equation \ref{eqn:theoretical_period}, because \(T(L)\) as generated by the fit is always greater than Equation
+\ref{eqn:theoretical_period} for the ranges of lengths in this experiment. This can be explained by sources of damping,
+such as air friction and friction between the string and pivot, which slow the pendulum down and increase its period.
+
+In conclusion, the data indicates that \textbf{Equation \ref{eqn:period} with the theoretical values of \(k\) and \(n\)
+is a good but not perfect approximation of the actual relationship between period and string length}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
