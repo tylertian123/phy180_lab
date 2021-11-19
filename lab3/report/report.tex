@@ -22,7 +22,7 @@
 \usepackage{epsf}          % old package handles encapsulated post script issues
 \usepackage{bm}            % special 'bold-math' package
 \usepackage{verbatim}			% for comment environment
-\usepackage[colorlinks=true]{hyperref}  % this package should be added after all others
+\usepackage[colorlinks=true,citecolor=blue]{hyperref}  % this package should be added after all others
                                         % use as follows: \url{https://urldefense.proofpoint.com/v2/url?u=http-3A__web.mit.edu_8.13&d=DwICAg&c=sJ6xIWYx-zLMB3EPkvcnVg&r=D88uS55Tats-jlFQAC1XryFUYq8B7Lk3StFbXzgsiB4&m=Vjrc9Wj5n5rkIDMPJ5VsRj2GyXC3yXmN_zDHey6dVio&s=_byqsJfgO464rVIugNWFPmbBeIYfNiJcGS1fgIwc0m4&e= }
 
 \usepackage{subcaption}
@@ -34,6 +34,10 @@
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{circledsteps}
+
+\usepackage{natbib}
+\bibliographystyle{ieeetr}
+\def\bibsection{\section{References}} 
 
 % Graph stuff
 \usepackage[utf8]{inputenc}
@@ -75,6 +79,7 @@ TODO
     \theta(t) = \theta_0 e^{-\frac{t}{\tau}}\cos\left(2\pi\frac{t}{T} + \phi_0\right)
     \label{eqn:model}
 \end{equation}
+\cite{lab}
 
 \begin{equation}
     Q = \pi\frac{\tau}{T}
@@ -244,8 +249,11 @@ Once the data is collected, Equation \ref{eqn:period} is fit to it using a Pytho
 \subsubsection{Lab 3b: Period vs. Mass}
 
 To determine the bob's mass, the cup's mass is measured on a digital scale. Due to the activity being completed at home,
-high-precision scales are often unavailable, so the mass of the coins inside is calculated using masses found on the
-\href{https://www.mint.ca/store/mint/learn/canadian-circulation-1100028}{Royal Canadian Mint website}.
+high-precision scales are often unavailable, so the mass of the coins inside is calculated using masses according to the
+Royal Canadian Mint \cite{mint}.
+
+As the coins are loaded into the cup, the centre of mass may shift and change the effective string length, which affects
+the period. To reduce this uncertainty, a long string length was used so that the effect of any shift is minimized.
 
 TODO Additional methods here
 
@@ -1032,6 +1040,7 @@ For all subsequent experiments, release angles are always less than the more con
 \section{Lab 3a Results and Analysis}
 
 \subsection{Uncertainties}
+\label{sec:lab3a_uncertainties}
 
 The sources of measurement uncertainty are the following:
 \begin{enumerate}
@@ -1060,7 +1069,7 @@ The sources of measurement uncertainty are the following:
 \end{enumerate}
 
 Since there is a non-negligible amount of \(x\) (length) uncertainty, the fitting is done with ODR (Orthogonal Distance
-Regression) instead of least squares since ODR is able to handle \(x\) uncertainties. The uncertainties in the data
+Regression) instead of least squares since ODR is able to handle \(x\) uncertainties much better \cite{odr}. The uncertainties in the data
 points are therefore included in the uncertainties produced by the fitting program.
 
 \subsection{Results}
@@ -1079,6 +1088,12 @@ The results of the fit are shown in Figure \ref{fig:lab3a_fit}. The fit paramete
     \caption{Parameters produced by curve fitting; values are unrounded.}
     \label{table:lab3a_fit}
 \end{table}
+
+Using the values obtained from the fit, the equation that models period with respect to string length is
+\begin{equation}
+    T(L) = 2.0181(L - 0.012727)^{0.496528}
+    \label{eqn:actual_period}
+\end{equation}
 
 Figure \ref{fig:lab3a_logfit} plots the data and fit on a log-log plot, with the intercept showing \(k\) and the slope
 showing \(n\).
@@ -1106,7 +1121,7 @@ showing \(n\).
                 y index=1,
                 x error index=2,
                 y error index=3
-            ] {lab3_data.txt};
+            ] {lab3a_data.txt};
             \addplot [
                 red,
                 very thick,
@@ -1137,7 +1152,7 @@ showing \(n\).
                 y index=1,
                 x error index=2,
                 y error index=3,
-            ] {lab3_residuals.txt};
+            ] {lab3a_residuals.txt};
         \end{axis}
     \end{tikzpicture}
     \caption{Results of the fit. The parameters are \(k = 2.018\), \(n = 0.497\), \(L_0 = -0.0173\).}
@@ -1191,13 +1206,14 @@ showing \(n\).
 
 The residuals in Figure \ref{fig:lab3a_fit} shows no clear pattern, indicating an accurate fit.
 
-The period of a linear pendulum, with small amplitudes and negligible damping, is
+The period of a linear pendulum, with small amplitudes and negligible damping, is \cite{period}
 \begin{equation}
     T \approx 2\pi\sqrt{\frac{L}{g}} = 2\frac{\pi}{\sqrt{g}}\sqrt{L} \approx 2.006L^{0.5}
     \label{eqn:theoretical_period}
 \end{equation}
+where \(g \approx 9.807\) is the acceleration due to gravity on Earth and \(L\) is the string length.
 
-By comparing Equation \ref{eqn:theoretical_period} with \ref{eqn:period}, the theoretical value for \(k\) is found to be
+By comparing Equation \ref{eqn:theoretical_period} with Equation \ref{eqn:period}, the theoretical value for \(k\) is found to be
 \(2.006\), for \(n\), \(0.5\), and for \(L_0\), \(0\).
 
 \begin{table}[ht]
@@ -1230,6 +1246,218 @@ is a good but not perfect approximation of the actual relationship between perio
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Lab 3b Results and Analysis}
+
+\subsection{Uncertainties}
+\label{sec:lab3b_uncertainties}
+
+The sources of uncertainty are the following:
+\begin{enumerate}
+    \item
+        \textbf{Mass uncertainty from variations in the coins:} Since a high-precision scale was not available for most
+        of the experiment, the mass of the bob is determined by adding up the masses of the coins inside according to
+        the Royal Canadian Mint \cite{mint}. The masses of the coins are not precise due to manufacturing tolerances and
+        wear. The uncertainty in mass is estimated to be \(4\%\) according to the Royal Canadian Mint Act \cite{mint_act}.
+        
+        The mass of the cup itself also carries a \(0.1\si{g}\) uncertainty from the scale measurements, but uncertainty
+        from the coins inside usually far exceeds this amount, so it is ignored.
+    \item
+        \textbf{Period uncertainty from the camera's framerate/data collection rate:} As described in number \Circled{3}
+        in Section \ref{sec:lab3a_uncertainties}, there is a period uncertainty of
+        \(\max\left\{\frac{0.02}{N}, \frac{\sigma}{\sqrt{N}}\right\}\) on each data point as a result of averaging
+        multiple periods to reduce the uncertainties caused by the rate of data collection.
+    \item
+        \textbf{Period uncertainty from shift in centre of mass:} As more coins are added to the cup, the centre of mass
+        shifts upward, reducing the effective string length. Since the amount of shift depends on the amount and
+        distribution of coins, it cannot be predicted easily. By visual inspection of the cup and distribution of coins,
+        the maximum shift of the centre of mass is determined to be about \(1\si{cm}\). Equation \ref{eqn:actual_period}
+        is used to turn the uncertainty in string length into an uncertainty in period by calculating \(T(L + 0.01) - T(L)\),
+        where \(L = 1.075\) is the string length used in this experiment as measured. The final period uncertainty from
+        this source is calculated to be \(\pm 0.01\si{s}\).
+\end{enumerate}
+
+\subsection{Correcting Changes in String Length from Stretching}
+\label{sec:lab3b_correction}
+
+Another source of error that cannot be controlled but can be predicted is the stretching of the pendulum string due to
+the increasing masses. Assuming that the string remains in its linear elastic phase, the amount of stretching can be
+calculated using the spring constant \(k\), which can be derived from the material's Young's modulus \(E\) by the
+following equation: \cite{civ_notes}
+\begin{equation}
+    k = \frac{AE}{L}
+    \label{eqn:youngs_modulus}
+\end{equation}
+where \(L\) is the length of the string.
+
+\(k\) for a shorter piece of the material was found experimentally by attaching it to a filled water bottle and
+measuring the change in length. Using Equation \ref{eqn:youngs_modulus}, the Young's modulus of the pendulum string is
+determined to be approximately \(\frac{197}{A}\si{Pa}\), where \(A\) is the cross-sectional area of the string in \(\si{m^2}\).
+Plugging this back into Equation \ref{eqn:youngs_modulus} and using the actual length of the pendulum string yields
+\(k = 194\si{N/m}\).
+
+Using this, a period correction can be calculated for every mass by \(T(L + \frac{mg}{k}) - T(L)\) where \(T(L)\) is the
+model of period versus length (Equation \ref{eqn:actual_period}), \(L\) is the unstretched length of the string, and
+\(m\) is the mass in \(\si{kg}\). This correction is subtracted from each period value since the stretching of the
+string increases period.
+
+\subsection{Results}
+
+Raw (uncorrected) data of the experiment is plotted in Figure \ref{fig:lab3b_data}. Data corrected according to Section
+\ref{sec:lab3b_correction} is plotted in Figure \ref{fig:lab3b_data_corrected}. Since the masses are spaced apart roughly
+exponentially, the data is also plotted on a log scale.
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Uncorrected Period vs. Mass,
+            xlabel=Mass (g),
+            ylabel=Period (s),
+            extra y ticks={2.0777777777777775},
+            extra y tick style={grid=major},
+            extra y tick labels={},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3b_data.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Uncorrected Period vs. Mass (Log Scale),
+            xlabel=Mass (g),
+            ylabel=Period (s),
+            extra y ticks={2.0777777777777775},
+            extra y tick style={grid=major},
+            extra y tick labels={},
+            xmode=log,
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3b_data.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Raw data for Period vs. Mass on a normal and log scale.}
+    \label{fig:lab3b_data}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Corrected Period vs. Mass,
+            xlabel=Mass (g),
+            ylabel=Period (s),
+            extra y ticks={2.0776603270996654},
+            extra y tick style={grid=major},
+            extra y tick labels={},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3b_data_corrected.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Corrected Period vs. Mass (Log Scale),
+            xlabel=Mass (g),
+            ylabel=Period (s),
+            extra y ticks={2.0776603270996654},
+            extra y tick style={grid=major},
+            extra y tick labels={},
+            xmode=log,
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3b_data_corrected.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Corrected data for Period vs. Mass on a normal and log scale according to Section \ref{sec:lab3b_correction}.}
+    \label{fig:lab3b_data_corrected}
+\end{figure}
+
+\subsection{Discussion and Analysis}
+
+Inspection of Figures \ref{fig:lab3b_data} and \ref{fig:lab3b_data_corrected} shows that the variations in period in the
+data are small, especially when the period is uncorrected. Most data points fall within one uncertainty of each
+other, with the exception of the first data point. The variations are less than \(2\%\) of the total period.
+
+However, despite the uncertainties, the data seems to exhibit a downward trend, with period decreasing slightly as the
+mass increases. While the data is inconclusive for determining the exact cause of this trend, there are two factors that
+are likely causes:
+\begin{enumerate}
+    \item
+        \textbf{Shifting of the centre of mass:} As discussed in number \Circled{3} in Section
+        \ref{sec:lab3b_uncertainties}, the shifting of the centre of mass can affect the period by changing the
+        effective string length. While this is treated as an uncertainty because the exact amount of shift cannot be
+        determined quantitatively, its general effect can be evaluated qualitatively. As the mass increases, the coins
+        fill the cup from the bottom and the centre of mass shifts up, leading to a decrease string length and period.
+        This is consistent with the downward trend that the data appears to exhibit and could be part of the explanation.
+    \item
+        \textbf{Effect of air resistance:} The effect of air resistance diminishes as the mass increases, since the
+        damping force of air resistance does not increase with mass, but the driving force of gravity does. The
+        increased bob inertia means that the effect of the constant air resistance becomes smaller as mass increases,
+        therefore the pendulum decelerates less and swings faster, leading to a slight decrease in period.
+
+        This is confirmed by the experimental observation that the rate of decay is significantly higher for smaller
+        masses than for larger masses. When released at the same angle, the filled cup can oscillate for more than 5
+        times as long before stopping than the empty cup.
+
+        This effect would be consistent with the trend in the data, especially since the data shows that the same
+        increase in mass has a much larger effect when the total mass is small (the slope is much steeper for small
+        masses). Since acceleration is inversely proportional to mass when force is constant, an increase in mass
+        decreases acceleration by significantly more when mass is small, so the effect on period also follows the same
+        relationship. This effect might be one of the primary causes of the downward trend in data.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \appendix
 
 \section{Source Code}
@@ -1238,5 +1466,7 @@ A comprehensive list of all source code, as well as the \LaTeX{} source for this
 \url{https://github.com/tylertian123/phy180_lab/tree/lab3/}. See the README for specific programs referenced in this
 report.
 \label{appendix:code}
+
+\bibliography{report}
 
 \end{document}
