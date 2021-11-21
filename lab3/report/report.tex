@@ -78,16 +78,17 @@ This lab report aims to quantitatively evaluate how well the theoretical model f
 performs in reality.
 
 Pendulums are one of the classic textbook examples of a damped harmonic oscillator. Most physics students will be able
-to tell you that for small angles, the motion of an idealized pendulum can be modelled by
+to tell you that for small angles, the motion of an idealized damped pendulum can be modelled by
 \begin{equation}
     \theta(t) = \theta_0 e^{-\frac{t}{\tau}}\cos\left(2\pi\frac{t}{T} + \phi_0\right)
     \label{eqn:model}
 \end{equation}
-where \(\theta(t)\) is the angle of the pendulum in radians at time \(t\), \(\theta_0\) is the initial amplitude at
-release, \(\tau\) is the time constant of decay, \(T\) is the period and \(\phi_0\) is the phase shift \cite{lab}.
+where \(\theta(t)\) is the angle of the pendulum in radians at time \(t\) in seconds, \(\theta_0\) is the initial
+amplitude at release in radians, \(\tau\) is the time constant of decay in seconds, \(T\) is the period in seconds and
+\(\phi_0\) is the phase shift in radians \cite{lab}.
 
 This model carries some assumptions, such as a frictionless pivot, massless string, a damping force
-proportional to velocity, and the small angle approximation \(\sin \theta \approx \theta\). While they make the
+proportional to velocity, and the small angle approximation \(\sin \theta \approx \theta\) \cite{period}. While they make the
 the model simple to use, these idealized conditions are clearly not true in real life.
 
 To what extent, then, is this a good approximation of a real pendulum? To scientifically investigate this question, a
@@ -132,8 +133,8 @@ Lab below:
     produced by the fit are not quite in agreement with the theoretical values (Section \ref{sec:lab3a_analysis}).
 
     Part b of this lab investigates the relationship between period and mass. According to Equation \ref{eqn:model},
-    mass should not have a direct effect on period, and the data is found to agree with this (Section
-    \ref{sec:lab3b_analysis}).
+    mass should not have a direct effect on period, and the data is found to agree with this to within the uncertainties
+    (Section \ref{sec:lab3b_analysis}).
 \end{enumerate}
 
 The results confirm the hypothesis that Equation \ref{eqn:model} only works for small angles. The real behaviour begins to
@@ -289,7 +290,7 @@ is truncated to produce 5 polynomials of degrees 0-4 respectively, and a fit is 
 \label{sec:lab3_method}
 
 For this Lab, the video was shot at 30fps and sampled at 30Hz. As determined in Lab 2 (Section \ref{sec:lab2_relationship}),
-this does have an impact on period, but this effect can be ignored for sufficiently small angles. Therefore the release
+amplitude does have an impact on period, but this effect can be ignored for sufficiently small angles. Therefore the release
 angle of the pendulum in this Lab is always less than the constraint determined in Section \ref{sec:lab2_range}.
 As the effect of decaying period is now negligible, multiple (about 10 each) oscillations were measured for every
 length/mass.
@@ -300,7 +301,7 @@ The period produced by each length/mass is determined using the same method as o
 \subsubsection{Lab 3a: Period vs. Length}
 
 To determine the effective string length, the bob is raised to the top as shown in Figure \ref{fig:raised_bob}, and a
-reading is taken on the measuring tape shown in the left of Figure \ref{fig:swingy} and used as a base value. For
+reading is taken on the measuring tape shown in Figure \ref{fig:clip} and used as a base value. For
 every trial, a reading is taken and subtracted from this base value to determine the added length.
 
 \begin{figure}[htb]
@@ -1282,6 +1283,11 @@ Using the values obtained from the fit, the equation that models period with res
     \label{eqn:actual_period}
 \end{equation}
 
+With uncertainties and rounding, the equation becomes
+\begin{equation}
+    T(L) = (2.018 \pm 0.002)(L - 0.013 \pm 0.002)^{0.497 \pm 0.002}
+\end{equation}
+
 Figure \ref{fig:lab3a_logfit} plots the data and fit on a log-log plot, with the intercept showing \(k\) and the slope
 showing \(n\).
 
@@ -1553,7 +1559,7 @@ more detail below). Since the masses are spaced apart roughly exponentially, the
 
 Inspection of Figures \ref{fig:lab3b_data} and \ref{fig:lab3b_data_corrected} shows that the variations in period in the
 data are small, especially when the period is uncorrected. Most data points fall within one uncertainty of each
-other, with the exception of the first data point. The variations are less than \(2\%\) of the total period.
+other, with the exception of the first data point. The variations are less than \(1\%\) of the total period.
 
 However, despite the uncertainties, the data seems to exhibit a downward trend, with period decreasing slightly as the
 mass increases. Notably, the same increase in mass when mass is small (left of the graph) seem to have a larger effect
@@ -1618,7 +1624,7 @@ Ultimately, changing the mass would always inadvertently affect the period throu
 almost impossible to correct for since they are complex and difficult to determine quantitatively.
 Practically speaking, since the effect of these indirect factors can't be accounted for, whether there is any direct
 relationship between period and mass is not a useful question for experiments. As Figure \ref{fig:lab3b_data_corrected}
-shows, the effect of any direct period-mass relationship on the overall period would be very small (\(< 2\%\)
+shows, the effect of any direct period-mass relationship on the overall period would be very small (\(< 1\%\)
 even if the indirect factors did not exist) and will easily be overshadowed by other sources of uncertainty unless very
 precise measurements are taken. By factoring in indirect effects as uncertainties, all the data points are effectively
 in agreement, so for most practical purposes the period can be considered constant, despite Equation \ref{eqn:period_mass}
@@ -1651,8 +1657,9 @@ From the 3 Labs above, the key findings are:
         \(0.30\si{rad}\) or \(17.2\degree\) (Section \ref{sec:lab2_range}).
     \item
         \textbf{The model is a good approximation for the short-term behaviour of the pendulum for small angles.}
-        The periods as predicted by the model match closely with the actual data for small release angles, indicating
-        that Equation \ref{eqn:model} is a valid approximation of the actual behaviour for these angles.
+        The periods as predicted by the model match closely with the actual data for small release angles, even for a
+        wide range of lengths and masses, indicating that Equation \ref{eqn:model} is a good approximation of the actual
+        behaviour for these angles.
 \end{enumerate}
 
 Overall, the findings indicate that the model is a good approximation for small angles and time ranges, so it should

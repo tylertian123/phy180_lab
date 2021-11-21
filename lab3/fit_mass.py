@@ -10,8 +10,11 @@ from scipy import odr
 # def fitfunc(p: List[float], m: float) -> float:
 #     return p[0] + p[1] * m ** p[2]
 
+# def fitfunc(p: List[float], m: float) -> float:
+#     return p[0] + p[1] * np.log(m)
+
 def fitfunc(p: List[float], m: float) -> float:
-    return p[0] + p[1] * np.log(m)
+    return p[0] + p[1] * np.exp(p[2] * m)
 
 
 def do_fit(x_data: np.ndarray, y_data: np.ndarray, x_uncert: np.ndarray, y_uncert: np.ndarray, guesses) -> Tuple[List[float], List[float]]:
@@ -32,7 +35,8 @@ def main(data_in: TextIO, sep: str, save_residuals: TextIO):
     """
     x_data, y_data, x_uncert, y_uncert = load_data(data_in, uncert=True, sep=sep)
     #params, uncert = do_fit(x_data, y_data, x_uncert, y_uncert, (2.079, 0, 0.5))
-    params, uncert = do_fit(x_data, y_data, x_uncert, y_uncert, (2.079, 1))
+    #params, uncert = do_fit(x_data, y_data, x_uncert, y_uncert, (2.079, 1))
+    params, uncert = do_fit(x_data, y_data, x_uncert, y_uncert, (2.079, 0.1, -0.1))
     print(params)
     print(uncert)
     bestfit = functools.partial(fitfunc, p=params)
