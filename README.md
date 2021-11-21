@@ -9,8 +9,9 @@ LaTeX code is complied with LuaTex Version 1.13.2 (TeX Live 2021).
 ## Code Referenced in Report
 
 * Main pendulum tracking program used to generate angle data: `cvtrack.py`, `gendata.py`
-* Curve fitting program for lab 1: `lab1/fit.py`
+* Fitting program for lab 1: `lab1/fit.py`
 * Period determination program for lab 2: `lab2/process_data.py`
 * Fitting program for lab 2: `lab2/fit.py`
 * Period determination program for lab 3: `lab3/genperiod.py`
-* Fitting program for lab 3a: `lab3/fit.py`
+* Fitting program for lab 3a: `lab3/fit_length.py`
+* Fitting program for lab 3b: `lab3/fit_mass.py`

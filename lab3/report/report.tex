@@ -1387,10 +1387,10 @@ string increases period.
 \subsection{Results}
 
 Raw (uncorrected) data of the experiment is plotted in Figure \ref{fig:lab3b_data}. Data corrected according to Section
-\ref{sec:lab3b_correction} is plotted in Figure \ref{fig:lab3b_data_corrected}. Since the masses are spaced apart roughly
-exponentially, the data is also plotted on a log scale.
+\ref{sec:lab3b_correction} is plotted in Figure \ref{fig:lab3b_data_corrected} along with a best fit curve (discussed in
+more detail below). Since the masses are spaced apart roughly exponentially, the data is also plotted on a log scale.
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
     \begin{tikzpicture}
         \begin{axis} [
             title=Uncorrected Period vs. Mass,
@@ -1444,12 +1444,12 @@ exponentially, the data is also plotted on a log scale.
             ] {lab3b_data.txt};
         \end{axis}
     \end{tikzpicture}
-    \caption{Raw data for Period vs. Mass on a normal and log scale. The horizontal line at \(T = 2.079\) represents the
+    \caption{Raw data for Period vs. Mass. The horizontal line at \(T = 2.079\) represents the
         period as predicted using the length according to Equation \ref{eqn:actual_period}.}
     \label{fig:lab3b_data}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
     \begin{tikzpicture}
         \begin{axis} [
             title=Corrected Period vs. Mass,
@@ -1458,11 +1458,11 @@ exponentially, the data is also plotted on a log scale.
             extra y ticks={2.07906534357},
             extra y tick style={grid=major},
             extra y tick labels={},
+            legend entries={Collected Data, Best Fit Curve}
         ]
             \addplot+[
                 only marks,
                 mark size=1,
-                clip marker paths=true,
                 error bars/.cd,
                     x dir=both,
                     y dir=both,
@@ -1474,6 +1474,12 @@ exponentially, the data is also plotted on a log scale.
                 x error index=2,
                 y error index=3
             ] {lab3b_data_corrected.txt};
+            \addplot [
+                red,
+                very thick,
+                domain=2:215,
+                samples=125,
+            ] {2.08040247 - 0.00395057 * ln(x)};
         \end{axis}
     \end{tikzpicture}
     \begin{tikzpicture}
@@ -1485,6 +1491,7 @@ exponentially, the data is also plotted on a log scale.
             extra y tick style={grid=major},
             extra y tick labels={},
             xmode=log,
+            legend entries={Collected Data, Best Fit Curve}
         ]
             \addplot+[
                 only marks,
@@ -1501,9 +1508,40 @@ exponentially, the data is also plotted on a log scale.
                 x error index=2,
                 y error index=3
             ] {lab3b_data_corrected.txt};
+            \addplot [
+                red,
+                very thick,
+                domain=2:215,
+                samples=125,
+            ] {2.08040247 - 0.00395057 * ln(x)};
         \end{axis}
     \end{tikzpicture}
-    \caption{Corrected data for Period vs. Mass on a normal and log scale according to Section \ref{sec:lab3b_correction}.
+    \begin{tikzpicture}
+        \begin{axis} [
+            title=Residuals,
+            xlabel=Mass (g),
+            ylabel=Period (s),
+            extra y ticks={0},
+            extra y tick style={grid=major},
+        ]
+            \addplot+[
+                only marks,
+                mark size=1,
+                clip marker paths=true,
+                error bars/.cd,
+                    x dir=both,
+                    y dir=both,
+                    x explicit,
+                    y explicit,
+            ] table [
+                x index=0,
+                y index=1,
+                x error index=2,
+                y error index=3
+            ] {lab3b_residuals.txt};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Corrected data for Period vs. Mass and ODR best fit of Equation \ref{eqn:period_mass} to the data.
         The horizontal line at \(T = 2.079\) represents the period as predicted using the length according to Equation \ref{eqn:actual_period}.}
     \label{fig:lab3b_data_corrected}
 \end{figure}
@@ -1511,13 +1549,38 @@ exponentially, the data is also plotted on a log scale.
 \subsection{Discussion and Analysis}
 \label{sec:lab3b_analysis}
 
+\subsubsection{Determining and Fitting to a Model}
+
 Inspection of Figures \ref{fig:lab3b_data} and \ref{fig:lab3b_data_corrected} shows that the variations in period in the
 data are small, especially when the period is uncorrected. Most data points fall within one uncertainty of each
 other, with the exception of the first data point. The variations are less than \(2\%\) of the total period.
 
 However, despite the uncertainties, the data seems to exhibit a downward trend, with period decreasing slightly as the
-mass increases. While the data is inconclusive for determining the exact cause of this trend, there are two factors that
-are likely causes:
+mass increases. Notably, the same increase in mass when mass is small (left of the graph) seem to have a larger effect
+than when the mass is large, suggesting a possible logarithmic relationship. For this reason, it was inferred that the
+relationship between period and mass may be of the form:
+\begin{equation}
+    T(m) = T_0 + k\ln(m)
+    \label{eqn:period_mass}
+\end{equation}
+where \(T_0\) is some "natural" period and \(m\) is the mass.
+
+Equation \ref{eqn:period_mass} is fit to the data using ODR by a Python program (see Appendix \ref{appendix:code}) and
+shown in Figure \ref{fig:lab3b_data_corrected}.
+
+The raw fit parameters produced by the regression are \(T_0 = 2.0804 \pm 0.00117\) and \(k = -0.00395 \pm 0.000324\).
+Despite the large uncertainties in the data, both fit parameters are well over \(10\times\) their uncertainties. Figure
+\ref{fig:lab3b_data_corrected} also shows no clear pattern in the residuals, suggesting that the model is probably
+accurate.
+
+(Note: Some other possible models were attempted in the fit as well, including \(T(m) = T_0 + \ln(m + c)\) and
+\(T(m) = T_0 + km^p\). Both of these produced fit parameters that are experimentally zero with very large uncertainties,
+so it was concluded that neither was the correct model.)
+
+\subsubsection{Analysis of the Trend}
+
+While the data is inconclusive for determining the exact cause of this trend, there are two factors that are likely
+causes:
 \begin{enumerate}
     \item
         \textbf{Shifting of the centre of mass:} As discussed in number \Circled{3} in Section
@@ -1543,16 +1606,27 @@ are likely causes:
         relationship. This effect might be one of the primary causes of the downward trend in data.
 \end{enumerate}
 
-With these factors potentially accounting for much of the apparent trend, it can be concluded that even if there was any
-direct relationship between mass and period, its effect would be small enough to be negligible.
+Even though Equation \ref{eqn:period_mass} models the relationship somewhat, it does not take into account the two sources above,
+so the relationship it models is not the pure relationship between mass and period (i.e. it also includes side effects
+of increasing mass mentioned above).
+
+Since the effect of the two factors above cannot be estimated easily, they could potentially account for much of the
+apparent trend. With the existing data and measurement equipment, it is not possible to determine whether there actually
+exists a direct relationship between mass and period.
 
 Ultimately, changing the mass would always inadvertently affect the period through some indirect effect, which can be
 almost impossible to correct for since they are complex and difficult to determine quantitatively.
-Nevertheless, their effects are relatively small, and with proper handling of uncertainties, most data points will be
-in agreement, making the period effectively constant.
+Practically speaking, since the effect of these indirect factors can't be accounted for, whether there is any direct
+relationship between period and mass is not a useful question for experiments. As Figure \ref{fig:lab3b_data_corrected}
+shows, the effect of any direct period-mass relationship on the overall period would be very small (\(< 2\%\)
+even if the indirect factors did not exist) and will easily be overshadowed by other sources of uncertainty unless very
+precise measurements are taken. By factoring in indirect effects as uncertainties, all the data points are effectively
+in agreement, so for most practical purposes the period can be considered constant, despite Equation \ref{eqn:period_mass}
+indicating otherwise.
 
-\textbf{Therefore, for most practical purposes, the simplification that mass does not \textit{directly} affect period is
-a valid approximation for this pendulum.}
+\textbf{Therefore, even though the data is inconclusive for determining whether mass \textit{directly} affects period,
+for most practical purposes, the simplification that period is constant with respect to mass is a valid approximation
+for this pendulum.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1588,9 +1662,12 @@ valid, since this range could be rather small and the period could deviate by si
 
 The largest uncertainties overall are usually caused by flaws in the pendulum design. For example, the cup used for the
 bob and the method used to vary mass made predicting the location of the centre of mass very difficult, and the improper
-alignment of the measuring tape due to poor construction also introduces a large uncertainty. In future work, the
-pendulum setup should be optimized and designed with minimizing uncertainties as the biggest priority, instead of
-convenience and simplicity, and use more precise construction.
+alignment of the measuring tape due to poor construction also introduces a large uncertainty. Much of the reason for
+these design decisions in the first place was due to the tight time constraints and also lack of access to precise
+measurement equipment since the experiments have to be completed at home.
+If more precise results are desired in future work, the pendulum setup should be optimized and designed with minimizing
+uncertainties as the biggest priority, instead of convenience and simplicity, and use more precise construction. It
+would be especially helpful if more time and better access to equipment were provided.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
