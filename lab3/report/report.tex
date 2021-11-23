@@ -87,9 +87,9 @@ where \(\theta(t)\) is the angle of the pendulum in radians at time \(t\) in sec
 amplitude at release in radians, \(\tau\) is the time constant of decay in seconds, \(T\) is the period in seconds and
 \(\phi_0\) is the phase shift in radians \cite{lab}.
 
-This model carries some assumptions, such as a frictionless pivot, massless string, a damping force
-proportional to velocity, and the small angle approximation \(\sin \theta \approx \theta\) \cite{period}. While they make the
-the model simple to use, these idealized conditions are clearly not true in real life.
+This model carries some assumptions, such as the small angle approximation \(\sin \theta \approx \theta\) \cite[p. 507]{mazur}
+and other idealized conditions. While they make the the model simple to use, these assumptions are clearly not exactly
+true in real life.
 
 To what extent, then, is this a good approximation of a real pendulum? To scientifically investigate this question, a
 pendulum with an adjustable string length and bob mass is constructed (Figure \ref{fig:swingy}), and a series of
@@ -113,10 +113,15 @@ Lab below:
         \label{eqn:qfactor}
     \end{equation}
 
-    In this Lab, the \(Q\) factor is measured using two independent methods described in Section \ref{sec:lab1_method}.
+    In this Lab, the \(Q\) factor is measured using two independent methods described in Section \ref{sec:lab1_method}:
+    fitting the data to \ref{eqn:model} and counting the number of oscillations until the pendulum decays to a certain
+    amount. Theoretically, these two methods should produce identical results.
+
     The fitting method produces a \(Q\) of \(142 \pm 4\) and the oscillation counting method produces a \(Q\) of
     \(148 \pm 2\). The values are found to be mostly consistent. However, the fit of the data to Equation \ref{eqn:model}
     leads to the conclusion that the model is not an accurate predictor of the pendulum's long-term behaviour.
+    Additionally, doing oscillation counting for different fractions of \(Q\) produces different results, so it was
+    concluded that oscillation counting is not a reliable method for measuring \(Q\).
 
     \item
     \textbf{Lab 2: Period vs. Amplitude:}
@@ -128,7 +133,7 @@ Lab below:
     \item
     \textbf{Lab 3: Period vs. String Length and Mass:}
     Part a of this lab investigates the relationship between period and string length and compares it to the theoretical
-    model of \(T \approx 2\sqrt{L}\) \cite{lab} by fitting an equation to the data (Section \ref{sec:lab3_method}).
+    model of \(T \approx 2\sqrt{L}\) \cite{lab} by fitting the power law function to the data (Section \ref{sec:lab3_method}).
     The theoretical model is found to be a good approximation of the actual behaviour, although the exact values
     produced by the fit are not quite in agreement with the theoretical values (Section \ref{sec:lab3a_analysis}).
 
@@ -1296,12 +1301,23 @@ showing \(n\).
 
 The residuals in Figure \ref{fig:lab3a_fit} shows no clear pattern, indicating an accurate fit.
 
-The period of a linear pendulum, with small amplitudes and negligible damping, is \cite{period}
+The angular frequency of a simple pendulum with negligible damping is \cite[p. 507]{mazur}
 \begin{equation}
-    T \approx 2\pi\sqrt{\frac{L}{g}} = 2\frac{\pi}{\sqrt{g}}\sqrt{L} \approx 2.006L^{0.5}
+    \omega = \sqrt{\frac{mLg}{I}}
+\end{equation}
+where \(m\) is the mass, \(L\) is the string length, \(g\) is acceleration due to gravity and \(I\) is the moment of
+inertia of the pendulum.
+
+Substituting in \(I = mL^2\) for the idealized pendulum and solving for period gives
+\begin{equation}
+    T = \frac{2\pi}{\omega} = \frac{2\pi}{\sqrt{\frac{mLg}{mL^2}}} = 2\pi\sqrt{\frac{L}{g}}
+\end{equation}
+
+Finally, plugging in approximate values for \(g\) and \(\pi\) gives
+\begin{equation}
+    T = 2\pi\sqrt{\frac{L}{g}} = 2\frac{\pi}{\sqrt{g}}\sqrt{L} \approx 2.006L^{0.5}
     \label{eqn:theoretical_period}
 \end{equation}
-where \(g \approx 9.807\) is the acceleration due to gravity on Earth and \(L\) is the string length.
 
 By comparing Equation \ref{eqn:theoretical_period} with Equation \ref{eqn:period}, the theoretical value for \(k\) is found to be
 \(2.006\), for \(n\), \(0.5\), and for \(L_0\), \(0\).
